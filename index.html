@@ -1064,7 +1064,27 @@ function puppyLoop(){
     PUP.dir=Math.sin(elapsed*0.02)>0?1:-1;
     if(elapsed>2000){
       PUP.state='walk';PUP.stateTimer=now;PUP.dir=1;
-      posPup();
+      // Rebuild path but keep position at doghouse — walk away naturally
+      const dash=document.getElementById('dash');
+      if(dash){
+        const app=document.querySelector('.app');
+        const aR=app.getBoundingClientRect();const dR=dash.getBoundingClientRect();const sY=window.scrollY;
+        const pad=8;
+        const left=dR.left-aR.left-pad;
+        const right=dR.left-aR.left+dR.width-48+pad;
+        const top=dR.top+sY-pad;
+        const bottom=dR.top+sY+dR.height-20+pad;
+        PUP.path=[{x:left,y:top},{x:right,y:top},{x:right,y:bottom},{x:left,y:bottom}];
+        // Find nearest path corner to walk toward
+        let best=0,bestD=Infinity;
+        for(let i=0;i<PUP.path.length;i++){
+          const d=Math.abs(PUP.x-PUP.path[i].x)+Math.abs(PUP.y-PUP.path[i].y);
+          if(d<bestD){bestD=d;best=i}
+        }
+        PUP.pathIdx=best;
+        PUP.targetX=PUP.path[best].x;
+        PUP.targetY=PUP.path[best].y;
+      }
       const rect=PUP.el.getBoundingClientRect();
       const em=document.createElement('div');em.className='puppy-reaction';em.style.position='fixed';
       em.textContent='🐾';em.style.left=rect.left+rect.width/2-8+'px';em.style.top=rect.top-16+'px';
