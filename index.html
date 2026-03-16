@@ -391,7 +391,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 const SB_URL='https://ebuxqvlosrdpjpfceojn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVidXhxdmxvc3JkcGpwZmNlb2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI2ODIsImV4cCI6MjA4OTI2ODY4Mn0.y-nX5cCcjv9A0GdvLG0oxyap8m2BCvkM4dS3Jr2_--8';
 const SB_HDRS={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
-const SYNC_KEYS=['rs-p3','rs-cid3','cc-todos','cc-notes','cc-note-folders'];
+const SYNC_KEYS=['rs-p3','rs-cid3','cc-todos','cc-notes','cc-note-folders','cc-weight-log'];
 let syncReady=false;
 
 async function sbGet(key){
@@ -478,6 +478,7 @@ const MODS=[
   {id:'notes',n:'Notes',i:'📝',d:'Note-taking with folders',s:'Local',sz:'md',on:0,cat:'Personal'},
   {id:'daily-stoic',n:'Daily Stoic',i:'🏛️',d:'Daily stoic wisdom quote',s:'Built-in',sz:'sm',on:0,cat:'Personal'},
   {id:'random-fact',n:'Random Fact',i:'💡',d:'Fun fact of the day',s:'Web',sz:'sm',on:0,cat:'Personal'},
+  {id:'weight-tracker',n:'Weight Tracker',i:'⚖️',d:'Track weight over time with chart',s:'Local',sz:'md',on:0,cat:'Personal'},
 ];
 
 const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT',short:'Richmans Sport',color:'#7eb8e0',logo:'https://richmanssport.com/cdn/shop/files/Artboard_6_copy_3.png?v=1720464043',ig:'@richmanssport',tt:'@richmanssport',web:'richmanssport.com',igGoal:25000,igCur:12847,revGoal:250000,revCur:250000,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[
@@ -645,6 +646,7 @@ function gc(id){
   case 'notes':return `<div style="display:flex;gap:6px;margin-bottom:10px"><div style="display:flex;gap:4px;flex:1;align-items:center"><input id="newFolderInput" placeholder="New folder..." style="width:120px;padding:6px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 10px 'Inter';outline:none" onkeydown="if(event.key==='Enter')addNoteFolder()"><button onclick="addNoteFolder()" style="padding:6px 10px;border-radius:6px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:700 9px 'Inter';cursor:pointer">+ Folder</button></div></div><div id="noteFolderTabs" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px"></div><div style="margin-bottom:10px"><textarea id="noteInput" placeholder="Write a note..." style="width:100%;min-height:80px;padding:10px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none;resize:vertical"></textarea><div style="display:flex;gap:6px;margin-top:6px"><input id="noteTitle" placeholder="Title (optional)" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none"><select id="noteFolderSelect" style="padding:6px 8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 10px 'Inter';outline:none"><option value="">No folder</option></select><button onclick="addNote()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow)">Save</button></div></div><div id="notesList"></div>`;
   case 'daily-stoic':return `<div id="stoicContent" style="padding:4px 0"></div><button onclick="newStoicQuote()" style="margin-top:10px;padding:6px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer">New Quote</button>`;
   case 'random-fact':return `<div id="factContent" style="padding:4px 0"><div style="color:var(--t3);font-size:11px;text-align:center;padding:16px 0">Loading fact...</div></div><button onclick="loadFact(true)" style="margin-top:10px;padding:6px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer">New Fact</button>`;
+  case 'weight-tracker':return `<div id="wtSummary" style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px"><div style="font:800 28px 'JetBrains Mono',mono" id="wtCurrent">--</div><div id="wtDelta" style="font:600 12px 'JetBrains Mono',mono"></div></div><div id="wtTotal" style="font:500 10px 'Inter';color:var(--t2);margin-bottom:12px"></div><div style="display:flex;gap:6px;margin-bottom:6px"><input id="wtDate" type="date" style="padding:7px 8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none"><input id="wtInput" type="number" step="0.1" placeholder="Weight (lbs)" style="width:110px;padding:7px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 12px 'JetBrains Mono',mono;outline:none"><button onclick="logWeight()" style="padding:7px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow)">Log</button></div><div style="display:flex;gap:6px;margin-bottom:12px"><button onclick="showWeightBulk()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer">Bulk Import</button><button onclick="clearLastWeight()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--brd);background:var(--bg2);color:var(--t3);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer">Undo Last</button></div><div id="wtBulkArea" style="display:none;margin-bottom:12px"><textarea id="wtBulkInput" placeholder="Paste past data, one per line:&#10;2026-01-15 185.2&#10;2026-02-01 183.5&#10;2026-03-01 181.0" style="width:100%;min-height:80px;padding:10px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'JetBrains Mono',mono;outline:none;resize:vertical"></textarea><button onclick="importWeightBulk()" style="margin-top:6px;padding:7px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow)">Import</button></div><div style="height:200px"><canvas id="wtChart"></canvas></div><div id="wtHistory" style="margin-top:10px;max-height:150px;overflow-y:auto"></div>`;
   default:return `<div style="color:var(--t3);font-size:10px;padding:16px 0;text-align:center">Connect data source</div>`}
 }
 
@@ -992,6 +994,7 @@ function postRenderMods(){
   if(document.getElementById('notesList')){renderNoteFolderTabs();renderNotes()}
   if(document.getElementById('stoicContent'))loadStoic();
   if(document.getElementById('factContent')&&!document.getElementById('factContent').dataset.loaded)loadFact();
+  if(document.getElementById('wtChart')){initWeightDate();renderWeightAll()}
 }
 
 // ── TO-DO LIST ──
@@ -1190,6 +1193,123 @@ function newStoicQuote(){
   const el=document.getElementById('stoicContent');if(!el)return;
   const q=STOIC_QUOTES[Math.floor(Math.random()*STOIC_QUOTES.length)];
   el.innerHTML=`<div style="font:300 15px/1.7 'Inter';color:var(--t0);padding:4px 0">"${q.q}"</div><div style="font:600 11px 'Inter';color:var(--accent);margin-top:8px">— ${q.a}</div>`;
+}
+
+// ── WEIGHT TRACKER ──
+let weightChart=null;
+function getWeightLog(){return JSON.parse(localStorage.getItem('cc-weight-log')||'[]')}
+function saveWeightLog(log){localStorage.setItem('cc-weight-log',JSON.stringify(log))}
+
+function initWeightDate(){
+  const d=document.getElementById('wtDate');
+  if(d)d.value=new Date().toISOString().slice(0,10);
+}
+
+function logWeight(){
+  const inp=document.getElementById('wtInput');
+  const dateInp=document.getElementById('wtDate');
+  const val=parseFloat(inp.value);
+  if(isNaN(val)||val<50||val>1000)return;
+  const date=dateInp.value||new Date().toISOString().slice(0,10);
+  const log=getWeightLog();
+  const existing=log.findIndex(e=>e.date===date);
+  if(existing>-1)log[existing].weight=val;else log.push({date,weight:val});
+  log.sort((a,b)=>a.date.localeCompare(b.date));
+  saveWeightLog(log);inp.value='';renderWeightAll();
+}
+
+function clearLastWeight(){
+  const log=getWeightLog();
+  if(!log.length)return;
+  log.pop();saveWeightLog(log);renderWeightAll();
+}
+
+function showWeightBulk(){
+  const el=document.getElementById('wtBulkArea');
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function importWeightBulk(){
+  const inp=document.getElementById('wtBulkInput');if(!inp)return;
+  const lines=inp.value.trim().split('\n');
+  const log=getWeightLog();
+  let imported=0;
+  lines.forEach(line=>{
+    const parts=line.trim().split(/[\s,\t]+/);
+    if(parts.length<2)return;
+    const date=parts[0];const weight=parseFloat(parts[1]);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(weight)||weight<50||weight>1000)return;
+    const existing=log.findIndex(e=>e.date===date);
+    if(existing>-1)log[existing].weight=weight;else log.push({date,weight});
+    imported++;
+  });
+  log.sort((a,b)=>a.date.localeCompare(b.date));
+  saveWeightLog(log);
+  inp.value='';document.getElementById('wtBulkArea').style.display='none';
+  renderWeightAll();
+  if(imported)alert(imported+' entries imported!');
+}
+
+function renderWeightAll(){renderWeightDisplay();renderWeightChart();renderWeightHistory()}
+
+function renderWeightDisplay(){
+  const log=getWeightLog();
+  const cur=document.getElementById('wtCurrent');
+  const delta=document.getElementById('wtDelta');
+  const total=document.getElementById('wtTotal');
+  if(!cur)return;
+  if(!log.length){cur.textContent='--';if(delta)delta.textContent='';if(total)total.textContent='Log your first weight to start tracking';return}
+  const last=log[log.length-1];
+  cur.textContent=last.weight+' lbs';
+  // Delta from previous entry
+  if(delta&&log.length>1){
+    const prev=log[log.length-2];
+    const diff=(last.weight-prev.weight).toFixed(1);
+    const sign=diff>0?'+':'';
+    delta.textContent=sign+diff+' lbs';
+    delta.style.color=diff<0?'var(--green)':diff>0?'var(--red)':'var(--t2)';
+  }else if(delta){delta.textContent=''}
+  // Total change from first entry
+  if(total&&log.length>1){
+    const first=log[0];
+    const totalDiff=(last.weight-first.weight).toFixed(1);
+    const sign=totalDiff>0?'+':'';
+    const color=totalDiff<0?'var(--green)':totalDiff>0?'var(--red)':'var(--t2)';
+    const firstDate=new Date(first.date+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    total.innerHTML=`<span style="color:${color};font:700 12px 'JetBrains Mono',mono">${sign}${totalDiff} lbs</span> since ${firstDate} <span style="color:var(--t3)">(${log.length} entries)</span>`;
+  }else if(total){total.textContent=log.length+' entry'}
+}
+
+function renderWeightChart(){
+  const el=document.getElementById('wtChart');if(!el)return;
+  const log=getWeightLog();
+  if(weightChart){weightChart.destroy();weightChart=null}
+  if(!log.length)return;
+  const data=log.slice(-60);
+  const s=getComputedStyle(document.documentElement);
+  const c=s.getPropertyValue('--accent').trim();
+  const ctx=el.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,200);
+  g.addColorStop(0,c+'40');g.addColorStop(1,'transparent');
+  weightChart=new Chart(ctx,{type:'line',data:{
+    labels:data.map(e=>{const d=new Date(e.date+'T12:00');return(d.getMonth()+1)+'/'+d.getDate()}),
+    datasets:[{data:data.map(e=>e.weight),borderColor:c,backgroundColor:g,fill:true,tension:.3,pointRadius:3,pointBackgroundColor:c,pointHoverRadius:6}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:c,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,callbacks:{label:ctx=>ctx.parsed.y+' lbs'}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:9},maxRotation:0,maxTicksLimit:12},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>v+' lbs'},border:{display:false}}}}});
+}
+
+function renderWeightHistory(){
+  const el=document.getElementById('wtHistory');if(!el)return;
+  const log=getWeightLog();
+  if(!log.length){el.innerHTML='';return}
+  const recent=log.slice().reverse().slice(0,20);
+  el.innerHTML='<div style="font:700 9px \'Inter\';text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:6px">Recent Entries</div>'+recent.map((e,i)=>{
+    const d=new Date(e.date+'T12:00');
+    const dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const prev=i<recent.length-1?recent[i+1]:null;
+    let diffHtml='';
+    if(prev){const diff=(e.weight-prev.weight).toFixed(1);const sign=diff>0?'+':'';const color=diff<0?'var(--green)':diff>0?'var(--red)':'var(--t3)';diffHtml=`<span style="font:500 9px 'JetBrains Mono',mono;color:${color}">${sign}${diff}</span>`}
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:11px"><span style="color:var(--t2);font:400 10px 'JetBrains Mono',mono">${dateStr}</span><div style="display:flex;align-items:center;gap:8px"><span style="font:600 11px 'JetBrains Mono',mono;color:var(--t0)">${e.weight} lbs</span>${diffHtml}</div></div>`;
+  }).join('');
 }
 
 // ── RANDOM FACT ──
