@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Command Center</title>
+<title>Bin's Battle Station</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -265,7 +265,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
   <div class="hdr-l">
     <button class="burger" onclick="toggleSB()"><span></span><span></span><span></span></button>
     <img class="logo-img" id="hLogo" src="" alt="" onerror="this.style.display='none'">
-    <div><div class="brand" id="hBrand"></div><div class="brand-sub">Command Center</div></div>
+    <div><div class="brand" id="hBrand"></div><div class="brand-sub">Battle Station</div></div>
   </div>
   <div class="hdr-r">
     <div class="prof-sw">
@@ -289,6 +289,14 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
     <div class="sb-lnk act" onclick="nav('dash')"><div class="ic">📊</div>Dashboard</div>
     <div class="sb-lnk" onclick="nav('conn')"><div class="ic">🔌</div>Connectors<span class="sb-badge">4</span></div>
     <div class="sb-lnk" onclick="nav('modules')"><div class="ic">🧩</div>Module Library<span class="sb-badge" id="mcBadge">9</span></div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Dashboards</div>
+    <div id="sbDashList"></div>
+    <div style="display:flex;gap:6px;padding:6px 10px">
+      <input id="sbNewDash" placeholder="New dashboard name..." style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none" onkeydown="if(event.key==='Enter')addDashboard()">
+      <button onclick="addDashboard()" style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow)">Add</button>
+    </div>
   </div>
   <div class="sb-sec">
     <div class="sb-lbl">Appearance</div>
@@ -433,15 +441,48 @@ function loadP(){
   document.getElementById('hBrand').textContent=p.name;
   const logo=document.getElementById('hLogo');logo.src=p.logo||'';logo.style.display=p.logo?'':'none';
   document.getElementById('profBtnN').textContent=p.short;
-  document.title=p.short+' — Command Center';
+  document.title=p.short+" — Bin's Battle Station";
 }
 function saveP(){const p=gp();p.theme=theme;p.mods=[...actMods];p.order=[...modOrder];p.sizes={...modSizes};sp()}
 
-function switchP(id){saveP();CID=id;localStorage.setItem('rs-cid3',id);loadP();renderAll();renderPD()}
+function switchP(id){saveP();CID=id;localStorage.setItem('rs-cid3',id);loadP();renderAll();renderPD();renderSBDash()}
 function togglePD(){document.getElementById('profDD').classList.toggle('show')}
+
+const BUILTIN_IDS=['richmans-sport','marketwake','champagne-celebrations'];
+const DASH_COLORS=['#34d399','#a855f7','#f472b6','#fb923c','#38bdf8','#facc15','#4ade80','#e879f9','#f87171','#818cf8'];
+
 function renderPD(){
-  let h='';Object.values(P).forEach(p=>{h+=`<div class="pf-opt ${p.id===CID?'active':''}" onclick="switchP('${p.id}')"><span class="pf-dot" style="background:${p.color}"></span><div><div class="pf-name">${p.short}</div><div class="pf-sub">${p.web}</div></div></div>`});
+  let h='';Object.values(P).forEach(p=>{
+    h+=`<div class="pf-opt ${p.id===CID?'active':''}" onclick="switchP('${p.id}')"><span class="pf-dot" style="background:${p.color}"></span><div><div class="pf-name">${p.short}</div><div class="pf-sub">${p.web||'Custom dashboard'}</div></div></div>`;
+  });
   document.getElementById('profDD').innerHTML=h;
+}
+
+function renderSBDash(){
+  const el=document.getElementById('sbDashList');if(!el)return;
+  let h='';Object.values(P).forEach(p=>{
+    const isBuiltin=BUILTIN_IDS.includes(p.id);
+    h+=`<div class="sb-lnk ${p.id===CID?'act':''}" onclick="switchP('${p.id}');toggleSB()" style="position:relative"><div class="ic" style="background:${p.color}33;color:${p.color};font-size:9px;font-weight:700">${p.short.charAt(0)}</div>${escH(p.short)}${!isBuiltin?`<button onclick="event.stopPropagation();deleteDashboard('${p.id}')" style="margin-left:auto;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center" title="Delete dashboard">&times;</button>`:''}</div>`;
+  });
+  el.innerHTML=h;
+}
+
+function addDashboard(){
+  const inp=document.getElementById('sbNewDash');
+  const name=inp.value.trim();if(!name)return;
+  const id=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+Date.now().toString(36);
+  const colorIdx=Object.keys(P).length%DASH_COLORS.length;
+  P[id]={id,name:name.toUpperCase(),short:name,color:DASH_COLORS[colorIdx],logo:'',ig:'',tt:'',web:'',igGoal:1,igCur:0,revGoal:1,revCur:0,igGL:'Goal 1',revGL:'Goal 2',theme:theme||'night',mods:[],order:[],sizes:{},igPosts:[],ttPosts:[]};
+  sp();inp.value='';
+  switchP(id);renderSBDash();
+}
+
+function deleteDashboard(id){
+  if(BUILTIN_IDS.includes(id))return;
+  if(!confirm('Delete "'+P[id].short+'" dashboard? This cannot be undone.'))return;
+  delete P[id];sp();
+  if(CID===id){CID='richmans-sport';localStorage.setItem('rs-cid3',CID);loadP();renderAll()}
+  renderPD();renderSBDash();
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-sw')){document.getElementById('profDD').classList.remove('show')}});
 
@@ -843,7 +884,7 @@ updateClock();
 
 // Init
 document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-loadP();renderPD();renderAll();
+loadP();renderPD();renderSBDash();renderAll();
 
 // ═══════════════════════════════════════
 // PERSONAL MODULES
