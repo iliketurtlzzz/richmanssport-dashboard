@@ -9,6 +9,7 @@
 <style>
 :root{--bg0:#000;--bg1:#0a0a0a;--bg2:#141414;--bg3:#1e1e1e;--brd:rgba(255,255,255,.08);--brd2:rgba(255,255,255,.14);--t0:#fff;--t1:#b0b0b0;--t2:#707070;--t3:#444;--accent:#7eb8e0;--accentDim:rgba(126,184,224,.12);--green:#34d399;--red:#f87171;--blue:#60a5fa;--radius:14px;--shadow:0 2px 4px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.15);--shadowLift:0 24px 48px rgba(0,0,0,.5);--shadow3d:0 1px 1px rgba(255,255,255,.04) inset,0 2px 6px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.2);--btnShadow:0 1px 2px rgba(0,0,0,.3),0 4px 8px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.06) inset}
 [data-theme="day"]{--bg0:#f8f7f5;--bg1:#fdfcfa;--bg2:#fff;--bg3:#f0eeea;--brd:rgba(0,0,0,.06);--brd2:rgba(0,0,0,.12);--t0:#111;--t1:#555;--t2:#999;--t3:#ccc;--accent:#5a9cc5;--accentDim:rgba(90,156,197,.1);--green:#16a34a;--red:#dc2626;--blue:#2563eb;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);--shadowLift:0 24px 48px rgba(0,0,0,.1);--shadow3d:0 1px 1px rgba(255,255,255,.8) inset,0 2px 6px rgba(0,0,0,.06),0 8px 20px rgba(0,0,0,.04);--btnShadow:0 1px 2px rgba(0,0,0,.08),0 3px 6px rgba(0,0,0,.04),0 1px 0 rgba(255,255,255,.9) inset}
+[data-theme="neon"]{--bg0:#000;--bg1:#050505;--bg2:#0a0a0a;--bg3:#111;--brd:rgba(0,255,255,.12);--brd2:rgba(0,255,255,.25);--t0:#e0ffff;--t1:#00e5ff;--t2:#0ff;--t3:#0a9;--accent:#ff00ff;--accentDim:rgba(255,0,255,.12);--green:#39ff14;--red:#ff073a;--blue:#00f0ff;--shadow:0 2px 4px rgba(0,0,0,.5),0 6px 20px rgba(0,0,0,.3);--shadowLift:0 0 30px rgba(0,255,255,.15),0 0 60px rgba(255,0,255,.1);--shadow3d:0 1px 1px rgba(0,255,255,.06) inset,0 2px 6px rgba(0,0,0,.5),0 0 12px rgba(0,255,255,.05);--btnShadow:0 0 6px rgba(0,255,255,.15),0 1px 2px rgba(0,0,0,.4),0 1px 0 rgba(0,255,255,.08) inset}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:var(--t0);-webkit-font-smoothing:antialiased}
 .app{max-width:1480px;margin:0 auto;padding:0 24px}
@@ -294,6 +295,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
     <div class="th-row">
       <button class="th-btn act" id="thN" onclick="setTheme('night')">Night</button>
       <button class="th-btn" id="thD" onclick="setTheme('day')">Day</button>
+      <button class="th-btn" id="thNe" onclick="setTheme('neon')">Neon</button>
     </div>
   </div>
 </nav>
@@ -421,9 +423,10 @@ function loadP(){
   actMods=p.mods?[...p.mods]:MODS.filter(m=>m.on).map(m=>m.id);
   modOrder=p.order?[...p.order]:[...actMods];
   modSizes=p.sizes?{...p.sizes}:{};
-  if(theme==='day')document.documentElement.setAttribute('data-theme','day');else document.documentElement.removeAttribute('data-theme');
+  if(theme==='night')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);
   document.getElementById('thN').classList.toggle('act',theme==='night');
   document.getElementById('thD').classList.toggle('act',theme==='day');
+  document.getElementById('thNe').classList.toggle('act',theme==='neon');
   document.getElementById('hBrand').textContent=p.name;
   const logo=document.getElementById('hLogo');logo.src=p.logo||'';logo.style.display=p.logo?'':'none';
   document.getElementById('profBtnN').textContent=p.short;
@@ -439,7 +442,7 @@ function renderPD(){
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-sw')){document.getElementById('profDD').classList.remove('show')}});
 
-function setTheme(t){theme=t;if(t==='day')document.documentElement.setAttribute('data-theme','day');else document.documentElement.removeAttribute('data-theme');document.getElementById('thN').classList.toggle('act',t==='night');document.getElementById('thD').classList.toggle('act',t==='day');saveP();renderDash()}
+function setTheme(t){theme=t;if(t==='night')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);document.getElementById('thN').classList.toggle('act',t==='night');document.getElementById('thD').classList.toggle('act',t==='day');document.getElementById('thNe').classList.toggle('act',t==='neon');saveP();renderDash()}
 function toggleSB(){document.getElementById('sb').classList.toggle('open');document.getElementById('ov').classList.toggle('open')}
 function nav(pg){
   document.getElementById('sb').classList.remove('open');document.getElementById('ov').classList.remove('open');
@@ -845,8 +848,11 @@ const PUP={el:null,canvas:null,ctx:null,x:300,y:400,dir:1,state:'walk',frame:0,s
 
 // Puppy palette — adapts to theme
 function pupPal(){
-  const day=document.documentElement.hasAttribute('data-theme');
-  return day?{
+  const dt=document.documentElement.getAttribute('data-theme');
+  if(dt==='neon')return{
+    body:'#ff00ff',bodyLt:'#ff66ff',dark:'#cc00cc',white:'#00ffff',nose:'#39ff14',eye:'#ff073a',tongue:'#ff073a',outline:'#0ff'
+  };
+  return dt==='day'?{
     body:'#5a9cc5',bodyLt:'#7eb8e0',dark:'#3a7ca8',white:'#d8eaf5',nose:'#2a5a80',eye:'#1a3a5a',tongue:'#d06070',outline:'#3a6a90'
   }:{
     body:'#7eb8e0',bodyLt:'#a0d4f0',dark:'#5a9cc5',white:'#e0f0ff',nose:'#3a7ca8',eye:'#1a4a70',tongue:'#e07080',outline:'#4a8ab0'
