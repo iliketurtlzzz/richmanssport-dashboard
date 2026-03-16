@@ -385,6 +385,73 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 </div>
 
 <script>
+// ═══════════════════════════════════════
+// SUPABASE SYNC
+// ═══════════════════════════════════════
+const SB_URL='https://ebuxqvlosrdpjpfceojn.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVidXhxdmxvc3JkcGpwZmNlb2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI2ODIsImV4cCI6MjA4OTI2ODY4Mn0.y-nX5cCcjv9A0GdvLG0oxyap8m2BCvkM4dS3Jr2_--8';
+const SB_HDRS={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
+const SYNC_KEYS=['rs-p3','rs-cid3','cc-todos','cc-notes'];
+let syncReady=false;
+
+async function sbGet(key){
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/kv_store?key=eq.'+encodeURIComponent(key)+'&select=value',{headers:SB_HDRS});
+    const d=await r.json();
+    return d.length?d[0].value:null;
+  }catch(e){console.log('sbGet err:',e);return null}
+}
+
+async function sbSet(key,value){
+  try{
+    await fetch(SB_URL+'/rest/v1/kv_store',{method:'POST',headers:SB_HDRS,
+      body:JSON.stringify({key,value,updated_at:new Date().toISOString()})});
+  }catch(e){console.log('sbSet err:',e)}
+}
+
+// Debounced sync to avoid hammering Supabase
+const syncTimers={};
+function syncToCloud(key){
+  clearTimeout(syncTimers[key]);
+  syncTimers[key]=setTimeout(()=>{
+    const val=localStorage.getItem(key);
+    if(val!==null)sbSet(key,JSON.parse(val));
+  },1000);
+}
+
+// Wrap localStorage.setItem to auto-sync
+const origSetItem=localStorage.setItem.bind(localStorage);
+localStorage.setItem=function(key,value){
+  origSetItem(key,value);
+  if(SYNC_KEYS.includes(key))syncToCloud(key);
+};
+
+// Pull all data from Supabase on load
+async function syncFromCloud(){
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/kv_store?select=key,value,updated_at',{headers:SB_HDRS});
+    const rows=await r.json();
+    if(!Array.isArray(rows)||!rows.length){
+      // First time — push local data to cloud
+      for(const k of SYNC_KEYS){const v=localStorage.getItem(k);if(v!==null)await sbSet(k,JSON.parse(v))}
+      syncReady=true;return false;
+    }
+    let changed=false;
+    for(const row of rows){
+      if(!SYNC_KEYS.includes(row.key))continue;
+      const cloudVal=JSON.stringify(row.value);
+      const localVal=localStorage.getItem(row.key);
+      if(cloudVal!==localVal){origSetItem(row.key,cloudVal);changed=true}
+    }
+    // Push any local keys that don't exist in cloud yet
+    const cloudKeys=rows.map(r=>r.key);
+    for(const k of SYNC_KEYS){
+      if(!cloudKeys.includes(k)){const v=localStorage.getItem(k);if(v!==null)await sbSet(k,JSON.parse(v))}
+    }
+    syncReady=true;return changed;
+  }catch(e){console.log('syncFromCloud err:',e);syncReady=true;return false}
+}
+
 const CIRC=314.16;
 const MODS=[
   {id:'social-followers',n:'Social Followers',i:'👥',d:'Follower counts',s:'IG · TT',sz:'sm',on:1,cat:'Social'},
@@ -899,6 +966,15 @@ updateClock();
 // Init
 document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 loadP();renderPD();renderSBDash();renderAll();
+
+// Sync from Supabase — if cloud has newer data, reload state
+syncFromCloud().then(changed=>{
+  if(changed){
+    P=JSON.parse(localStorage.getItem('rs-p3')||'null')||JSON.parse(JSON.stringify(DFLT_PROFILES));
+    CID=localStorage.getItem('rs-cid3')||'richmans-sport';
+    loadP();renderPD();renderSBDash();renderAll();
+  }
+});
 
 // ═══════════════════════════════════════
 // PERSONAL MODULES
