@@ -340,7 +340,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
   <div class="goal">
     <div class="arc-g"><svg viewBox="0 0 120 120"><circle class="arc-tk" cx="60" cy="60" r="50"/><circle class="arc-fl" cx="60" cy="60" r="50" id="aIG" stroke="url(#gGr)" stroke-dasharray="314.16" stroke-dashoffset="314.16"/></svg><div class="arc-ct"><div class="arc-pct" id="aIGP">0%</div><div class="arc-lab">of goal</div></div></div>
     <div class="g-info">
-      <div class="g-label" id="igGL">Instagram Follower Goal</div>
+      <div class="g-label" id="igGL" onclick="editGoalLabel('ig')" style="cursor:pointer" title="Click to rename">Instagram Follower Goal</div>
+      <input class="g-input" id="igGLInput" placeholder="Goal name..." style="display:none;width:100%;margin-bottom:4px;font:700 9px 'Inter';text-transform:uppercase;letter-spacing:1.5px" onblur="saveGoalLabel('ig')" onkeydown="if(event.key==='Enter')this.blur()">
       <div class="g-nums"><div class="g-cur" id="igCD"></div><div class="g-tar" id="igTD"></div></div>
       <div class="g-rem" id="igRem"></div>
       <div class="g-edit">
@@ -353,7 +354,8 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
   <div class="goal">
     <div class="arc-g"><svg viewBox="0 0 120 120"><circle class="arc-tk" cx="60" cy="60" r="50"/><circle class="arc-fl" cx="60" cy="60" r="50" id="aRev" stroke="url(#gGr)" stroke-dasharray="314.16" stroke-dashoffset="314.16"/></svg><div class="arc-ct"><div class="arc-pct" id="aRevP">0%</div><div class="arc-lab">of goal</div></div></div>
     <div class="g-info">
-      <div class="g-label" id="revGL">2026 Revenue Goal</div>
+      <div class="g-label" id="revGL" onclick="editGoalLabel('rev')" style="cursor:pointer" title="Click to rename">2026 Revenue Goal</div>
+      <input class="g-input" id="revGLInput" placeholder="Goal name..." style="display:none;width:100%;margin-bottom:4px;font:700 9px 'Inter';text-transform:uppercase;letter-spacing:1.5px" onblur="saveGoalLabel('rev')" onkeydown="if(event.key==='Enter')this.blur()">
       <div class="g-nums"><div class="g-cur" id="revCD"></div><div class="g-tar" id="revTD"></div></div>
       <div class="g-rem" id="revRem"></div>
       <div class="g-edit">
@@ -448,7 +450,6 @@ function saveP(){const p=gp();p.theme=theme;p.mods=[...actMods];p.order=[...modO
 function switchP(id){saveP();CID=id;localStorage.setItem('rs-cid3',id);loadP();renderAll();renderPD();renderSBDash()}
 function togglePD(){document.getElementById('profDD').classList.toggle('show')}
 
-const BUILTIN_IDS=['richmans-sport','marketwake','champagne-celebrations'];
 const DASH_COLORS=['#34d399','#a855f7','#f472b6','#fb923c','#38bdf8','#facc15','#4ade80','#e879f9','#f87171','#818cf8'];
 
 function renderPD(){
@@ -460,9 +461,9 @@ function renderPD(){
 
 function renderSBDash(){
   const el=document.getElementById('sbDashList');if(!el)return;
+  const keys=Object.keys(P);
   let h='';Object.values(P).forEach(p=>{
-    const isBuiltin=BUILTIN_IDS.includes(p.id);
-    h+=`<div class="sb-lnk ${p.id===CID?'act':''}" onclick="switchP('${p.id}');toggleSB()" style="position:relative"><div class="ic" style="background:${p.color}33;color:${p.color};font-size:9px;font-weight:700">${p.short.charAt(0)}</div>${escH(p.short)}${!isBuiltin?`<button onclick="event.stopPropagation();deleteDashboard('${p.id}')" style="margin-left:auto;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center" title="Delete dashboard">&times;</button>`:''}</div>`;
+    h+=`<div class="sb-lnk ${p.id===CID?'act':''}" onclick="switchP('${p.id}');toggleSB()" style="position:relative"><div class="ic" style="background:${p.color}33;color:${p.color};font-size:9px;font-weight:700">${p.short.charAt(0)}</div>${escH(p.short)}${keys.length>1?`<button onclick="event.stopPropagation();deleteDashboard('${p.id}')" style="margin-left:auto;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center" title="Delete dashboard">&times;</button>`:''}</div>`;
   });
   el.innerHTML=h;
 }
@@ -478,10 +479,10 @@ function addDashboard(){
 }
 
 function deleteDashboard(id){
-  if(BUILTIN_IDS.includes(id))return;
+  if(Object.keys(P).length<=1)return;
   if(!confirm('Delete "'+P[id].short+'" dashboard? This cannot be undone.'))return;
   delete P[id];sp();
-  if(CID===id){CID='richmans-sport';localStorage.setItem('rs-cid3',CID);loadP();renderAll()}
+  if(CID===id){CID=Object.keys(P)[0];localStorage.setItem('rs-cid3',CID);loadP();renderAll()}
   renderPD();renderSBDash();
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.prof-sw')){document.getElementById('profDD').classList.remove('show')}});
@@ -609,6 +610,19 @@ function updateG(t){
     if(!isNaN(g)&&g>0)p.revGoal=g;
   }
   sp();renderG();
+}
+function editGoalLabel(t){
+  const label=document.getElementById(t==='ig'?'igGL':'revGL');
+  const inp=document.getElementById(t==='ig'?'igGLInput':'revGLInput');
+  inp.value=label.textContent;
+  label.style.display='none';inp.style.display='';inp.focus();inp.select();
+}
+function saveGoalLabel(t){
+  const label=document.getElementById(t==='ig'?'igGL':'revGL');
+  const inp=document.getElementById(t==='ig'?'igGLInput':'revGLInput');
+  const val=inp.value.trim();
+  if(val){const p=gp();if(t==='ig')p.igGL=val;else p.revGL=val;sp()}
+  label.style.display='';inp.style.display='none';renderG();
 }
 
 // Posts
