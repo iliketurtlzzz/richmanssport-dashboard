@@ -249,7 +249,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 .dh-zzz span:nth-child(2){font-size:11px;animation-delay:.3s}
 .dh-zzz span:nth-child(3){font-size:14px;animation-delay:.6s}
 .dh-sign{display:flex;flex-direction:column;align-items:center;margin-left:4px;margin-bottom:4px}
-.dh-sign canvas{width:36px;height:44px;image-rendering:pixelated}
+.dh-sign canvas{width:56px;height:44px;image-rendering:pixelated}
 @keyframes zzz{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
 .puppy-reaction{position:fixed;z-index:1000;font-size:16px;pointer-events:none;animation:floatUp 1s forwards}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
@@ -878,20 +878,20 @@ function drawSign(){
   c.clearRect(0,0,28,22);c.fillStyle=p.body;
   c.fillRect(13,0,2,22); // post
   c.fillRect(0,3,28,11); // board
-  // WINNIE in 3x5 pixel font
+  // WINNIE in 3x5 pixel font, centered on sign
   c.fillStyle=p.white;
   // W
-  px(c,1,5);px(c,1,6);px(c,1,7);px(c,1,8);px(c,2,9);px(c,3,8);px(c,4,9);px(c,5,5);px(c,5,6);px(c,5,7);px(c,5,8);
+  px(c,3,5);px(c,3,6);px(c,3,7);px(c,3,8);px(c,4,9);px(c,5,8);px(c,6,9);px(c,7,5);px(c,7,6);px(c,7,7);px(c,7,8);
   // I
-  px(c,7,5);px(c,7,6);px(c,7,7);px(c,7,8);px(c,7,9);
+  px(c,9,5);px(c,9,6);px(c,9,7);px(c,9,8);px(c,9,9);
   // N
-  px(c,9,5);px(c,9,6);px(c,9,7);px(c,9,8);px(c,9,9);px(c,10,6);px(c,11,7);px(c,12,5);px(c,12,6);px(c,12,7);px(c,12,8);px(c,12,9);
+  px(c,11,5);px(c,11,6);px(c,11,7);px(c,11,8);px(c,11,9);px(c,12,6);px(c,13,7);px(c,14,5);px(c,14,6);px(c,14,7);px(c,14,8);px(c,14,9);
   // N
-  px(c,14,5);px(c,14,6);px(c,14,7);px(c,14,8);px(c,14,9);px(c,15,6);px(c,16,7);px(c,17,5);px(c,17,6);px(c,17,7);px(c,17,8);px(c,17,9);
+  px(c,16,5);px(c,16,6);px(c,16,7);px(c,16,8);px(c,16,9);px(c,17,6);px(c,18,7);px(c,19,5);px(c,19,6);px(c,19,7);px(c,19,8);px(c,19,9);
   // I
-  px(c,19,5);px(c,19,6);px(c,19,7);px(c,19,8);px(c,19,9);
+  px(c,21,5);px(c,21,6);px(c,21,7);px(c,21,8);px(c,21,9);
   // E
-  px(c,21,5);px(c,21,6);px(c,21,7);px(c,21,8);px(c,21,9);px(c,22,5);px(c,22,7);px(c,22,9);px(c,23,5);px(c,23,9);
+  px(c,23,5);px(c,23,6);px(c,23,7);px(c,23,8);px(c,23,9);px(c,24,5);px(c,24,7);px(c,24,9);px(c,25,5);px(c,25,9);
 }
 
 function initPuppy(){
