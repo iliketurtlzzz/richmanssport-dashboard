@@ -1,0 +1,28 @@
+{
+  "name": "richmanssport-dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iliketutlzzz/richmanssport-dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/iliketutlzzz/richmanssport-dashboard/issues"
+  },
+  "homepage": "https://github.com/iliketutlzzz/richmanssport-dashboard#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "express": "^4.22.1",
+    "googleapis": "^171.4.0"
+  }
+}
