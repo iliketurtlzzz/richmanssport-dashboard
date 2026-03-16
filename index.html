@@ -757,7 +757,9 @@ loadP();renderPD();renderAll();
 // ═══════════════════════════════════════
 // BUDDY — 8-bit pitbull, big head, cute
 // ═══════════════════════════════════════
-const PUP={el:null,canvas:null,ctx:null,x:300,y:400,dir:1,state:'walk',frame:0,stateTimer:0,walkSpeed:0.2,awake:true,SLEEP_AFTER:120000,t:0,minX:100,maxX:800};
+const PUP={el:null,canvas:null,ctx:null,x:300,y:400,dir:1,state:'walk',frame:0,stateTimer:0,walkSpeed:0.3,awake:true,SLEEP_AFTER:120000,t:0,
+  // Path corners: top-left, top-right, bottom-right, bottom-left
+  path:[],pathIdx:0,targetX:0,targetY:0};
 
 function col(){return document.documentElement.hasAttribute('data-theme')?'#5a9cc5':'#ffffff'}
 function bgC(){return document.documentElement.hasAttribute('data-theme')?'#f5f0eb':'#0a0a0a'}
@@ -824,15 +826,25 @@ function posPup(){
   const dash=document.getElementById('dash');if(!dash)return;
   const app=document.querySelector('.app');
   const aR=app.getBoundingClientRect();const dR=dash.getBoundingClientRect();const sY=window.scrollY;
-  const mods=[...document.querySelectorAll('.mod')];
-  const rows=[];let lb=0;
-  mods.forEach(m=>{const r=m.getBoundingClientRect();if(Math.abs(r.bottom-lb)>10)rows.push(r.bottom+sY);lb=r.bottom});
-  if(rows.length>1){const g=Math.floor(Math.random()*(rows.length-1));PUP.y=rows[g]+4}
-  else if(rows.length===1)PUP.y=rows[0]+4;
-  else PUP.y=dR.top+sY+60;
-  const dl=dR.left-aR.left;
-  PUP.minX=dl+20;PUP.maxX=dl+dR.width-70;
-  PUP.x=PUP.minX+Math.random()*(PUP.maxX-PUP.minX);
+  const pad=8; // offset from edge
+  const left=dR.left-aR.left-pad;
+  const right=dR.left-aR.left+dR.width-48+pad;
+  const top=dR.top+sY-pad;
+  const bottom=dR.top+sY+dR.height-20+pad;
+  // Rectangle path: TL → TR → BR → BL → repeat
+  PUP.path=[
+    {x:left,y:top},
+    {x:right,y:top},
+    {x:right,y:bottom},
+    {x:left,y:bottom},
+  ];
+  // Start at top-left, heading to top-right
+  PUP.pathIdx=0;
+  PUP.x=PUP.path[0].x;
+  PUP.y=PUP.path[0].y;
+  PUP.targetX=PUP.path[1].x;
+  PUP.targetY=PUP.path[1].y;
+  PUP.pathIdx=1;
 }
 
 function drawBuddy(){
@@ -956,15 +968,33 @@ function puppyLoop(){
     if(now-PUP.stateTimer>3000){PUP.state='walk';PUP.stateTimer=now}
   } else if(PUP.state==='walk'&&PUP.awake){
     PUP.frame+=0.02;
-    PUP.x+=PUP.walkSpeed*PUP.dir;
-    if(PUP.x>PUP.maxX)PUP.dir=-1;
-    if(PUP.x<PUP.minX)PUP.dir=1;
-    if(Math.random()<0.0008){PUP.state='sit';PUP.stateTimer=now}
-    if(Math.random()<0.0008)PUP.dir*=-1;
+    // Move toward current target corner
+    const tx=PUP.targetX,ty=PUP.targetY;
+    const dx=tx-PUP.x,dy=ty-PUP.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<2){
+      // Reached corner — maybe pause, then go to next corner
+      if(Math.random()<0.3){PUP.state='sit';PUP.stateTimer=now}
+      PUP.pathIdx=(PUP.pathIdx+1)%PUP.path.length;
+      PUP.targetX=PUP.path[PUP.pathIdx].x;
+      PUP.targetY=PUP.path[PUP.pathIdx].y;
+    } else {
+      // Walk toward target
+      const speed=PUP.walkSpeed;
+      PUP.x+=dx/dist*speed;
+      PUP.y+=dy/dist*speed;
+    }
+    // Face direction of horizontal movement
+    if(Math.abs(dx)>1)PUP.dir=dx>0?1:-1;
     if(now-PUP.stateTimer>PUP.SLEEP_AFTER)goToSleep();
   } else if(PUP.state==='sit'){
     PUP.frame+=0.01;
-    if(now-PUP.stateTimer>4000){PUP.state='walk';PUP.stateTimer=now}
+    if(now-PUP.stateTimer>3000){
+      PUP.state='walk';PUP.stateTimer=now;
+      PUP.pathIdx=(PUP.pathIdx+1)%PUP.path.length;
+      PUP.targetX=PUP.path[PUP.pathIdx].x;
+      PUP.targetY=PUP.path[PUP.pathIdx].y;
+    }
   } else if(PUP.state==='sleep'){PUP.frame+=0.01}
 
   PUP.el.style.transform=PUP.dir<0?'scaleX(-1)':'';
