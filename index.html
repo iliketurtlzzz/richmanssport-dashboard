@@ -314,13 +314,13 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 <!-- Module Library -->
 <div class="panel" id="pMods"><div class="panel-hdr"><button class="panel-back" onclick="nav('dash')">←</button><div><div class="panel-t">Module Library</div><div class="panel-st">Click to add or remove</div></div></div><div class="lib-grid" id="libGrid"></div></div>
 
-<!-- Buddy's House -->
+<!-- Winnie's House -->
 <div class="doghouse-wrap" id="doghouseWrap">
   <div class="doghouse" id="doghouse" onclick="sendToSleep()" ondblclick="wakePuppy()" title="Click: bed · Double-click: wake">
     <div class="dh-house"><canvas id="dhCanvas" width="40" height="26"></canvas>
       <div class="dh-zzz" id="dhZzz" style="display:none"><span style="font-size:9px">z</span><span>z</span><span>Z</span></div>
     </div>
-    <div class="dh-sign"><canvas id="dhSign" width="18" height="22"></canvas></div>
+    <div class="dh-sign"><canvas id="dhSign" width="28" height="22"></canvas></div>
   </div>
 </div>
 
@@ -840,7 +840,7 @@ document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-U
 loadP();renderPD();renderAll();
 
 // ═══════════════════════════════════════
-// BUDDY — 8-bit pitbull, big head, cute
+// WINNIE — 8-bit pitbull, big head, cute
 // ═══════════════════════════════════════
 const PUP={el:null,canvas:null,ctx:null,x:300,y:400,dir:1,state:'walk',frame:0,stateTimer:0,walkSpeed:0.3,awake:true,SLEEP_AFTER:120000,t:0,
   // Path corners: top-left, top-right, bottom-right, bottom-left
@@ -875,19 +875,23 @@ function drawDoghouse(){
 function drawSign(){
   const cv=document.getElementById('dhSign');if(!cv)return;
   const c=cv.getContext('2d');const p=pupPal();
-  c.clearRect(0,0,18,22);c.fillStyle=p.body;
-  c.fillRect(8,0,2,22); // post
-  c.fillRect(0,3,18,11); // board
-  // BUDDY in 3x5 pixel font
+  c.clearRect(0,0,28,22);c.fillStyle=p.body;
+  c.fillRect(13,0,2,22); // post
+  c.fillRect(0,3,28,11); // board
+  // WINNIE in 3x5 pixel font
   c.fillStyle=p.white;
-  // B
-  px(c,2,5);px(c,2,6);px(c,2,7);px(c,2,8);px(c,2,9);px(c,3,5);px(c,3,7);px(c,3,9);px(c,4,6);px(c,4,8);
-  // U
-  px(c,6,5);px(c,6,6);px(c,6,7);px(c,6,8);px(c,7,9);px(c,8,5);px(c,8,6);px(c,8,7);px(c,8,8);
-  // D
-  px(c,10,5);px(c,10,6);px(c,10,7);px(c,10,8);px(c,10,9);px(c,11,5);px(c,11,9);px(c,12,6);px(c,12,7);px(c,12,8);
-  // Y
-  px(c,14,5);px(c,14,6);px(c,15,7);px(c,15,8);px(c,15,9);px(c,16,5);px(c,16,6);
+  // W
+  px(c,1,5);px(c,1,6);px(c,1,7);px(c,1,8);px(c,2,9);px(c,3,8);px(c,4,9);px(c,5,5);px(c,5,6);px(c,5,7);px(c,5,8);
+  // I
+  px(c,7,5);px(c,7,6);px(c,7,7);px(c,7,8);px(c,7,9);
+  // N
+  px(c,9,5);px(c,9,6);px(c,9,7);px(c,9,8);px(c,9,9);px(c,10,6);px(c,11,7);px(c,12,5);px(c,12,6);px(c,12,7);px(c,12,8);px(c,12,9);
+  // N
+  px(c,14,5);px(c,14,6);px(c,14,7);px(c,14,8);px(c,14,9);px(c,15,6);px(c,16,7);px(c,17,5);px(c,17,6);px(c,17,7);px(c,17,8);px(c,17,9);
+  // I
+  px(c,19,5);px(c,19,6);px(c,19,7);px(c,19,8);px(c,19,9);
+  // E
+  px(c,21,5);px(c,21,6);px(c,21,7);px(c,21,8);px(c,21,9);px(c,22,5);px(c,22,7);px(c,22,9);px(c,23,5);px(c,23,9);
 }
 
 function initPuppy(){
@@ -905,7 +909,7 @@ function initPuppy(){
     if(!PUP.awake){wakePuppy();return}
     const act=Math.random()>.5?'pet':'treat';
     PUP.state=act;PUP.frame=0;PUP.stateTimer=Date.now();
-    // Emoji right above Buddy
+    // Emoji right above Winnie
     const rect=PUP.el.getBoundingClientRect();
     const em=document.createElement('div');em.className='puppy-reaction';
     em.textContent=act==='pet'?'💖':'🦴';
@@ -942,7 +946,7 @@ function posPup(){
   PUP.pathIdx=1;
 }
 
-function drawBuddy(){
+function drawWinnie(){
   const c=PUP.ctx;c.clearRect(0,0,24,24);
   const p=pupPal();const f=Math.floor(PUP.frame)%4;
   PUP.t+=0.015;
@@ -1101,7 +1105,7 @@ function puppyLoop(){
   } else if(PUP.state==='sleep'){PUP.frame+=0.01}
 
   PUP.el.style.transform=PUP.dir<0?'scaleX(-1)':'';
-  drawBuddy();
+  drawWinnie();
   PUP.el.style.left=PUP.x+'px';PUP.el.style.top=PUP.y+'px';
   PUP.el.style.display=PUP.state==='sleep'?'none':'';
   requestAnimationFrame(puppyLoop);
