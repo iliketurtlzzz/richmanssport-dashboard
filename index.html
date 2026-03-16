@@ -257,6 +257,111 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 @media(max-width:1200px){.dash{grid-template-columns:repeat(2,1fr)}.mod.lg,.mod.xl{grid-column:span 2}.goals{grid-template-columns:1fr}.posts-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){.dash{grid-template-columns:1fr}.mod.sm,.mod.md,.mod.lg,.mod.xl{grid-column:span 1}.app{padding:0 12px}.posts-grid{grid-template-columns:repeat(2,1fr)}}
 
+/* ═══ TOP-LEVEL TAB SYSTEM ═══ */
+.top-tabs{display:flex;gap:4px;padding:8px 0 0;margin-bottom:16px;border-bottom:1px solid var(--brd)}
+.top-tab{padding:10px 24px;border:none;background:transparent;color:var(--t2);font:700 11px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;position:relative;bottom:-1px}
+.top-tab:hover{color:var(--t0)}
+.top-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ═══ PERSONAL TAB ═══ */
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:900px){.p-grid{grid-template-columns:1fr}}
+.p-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow3d)}
+.p-card-title{font:700 9px 'Inter';text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.p-card-title .p-icon{font-size:12px}
+.p-card.full{grid-column:1/-1}
+
+/* Weight Tracker */
+.wt-form{display:flex;gap:8px;margin-bottom:12px}
+.wt-input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:600 12px 'JetBrains Mono',mono;outline:none}
+.wt-input:focus{border-color:var(--accent)}
+.wt-btn{padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow);transition:all .15s}
+.wt-btn:hover{transform:translateY(-1px)}
+.wt-btn:active{transform:translateY(0)}
+.wt-chart{height:200px;position:relative}
+.wt-current{font:800 24px 'JetBrains Mono',mono;color:var(--t0);margin-bottom:4px}
+.wt-delta{font:600 10px 'JetBrains Mono',mono}
+
+/* Todo List */
+.todo-form{display:flex;gap:6px;margin-bottom:12px}
+.todo-input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 12px 'Inter';outline:none}
+.todo-input:focus{border-color:var(--accent)}
+.todo-select{padding:8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:600 10px 'Inter';outline:none;cursor:pointer}
+.todo-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd)}
+.todo-item:last-child{border-bottom:none}
+.todo-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--brd2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .15s;flex-shrink:0}
+.todo-check:hover{border-color:var(--accent)}
+.todo-check.done{background:var(--green);border-color:var(--green);color:#000}
+.todo-text{flex:1;font-size:12px;font-weight:500}
+.todo-text.done{text-decoration:line-through;color:var(--t3)}
+.todo-priority{padding:2px 6px;border-radius:4px;font:700 8px 'JetBrains Mono',mono;text-transform:uppercase;letter-spacing:.3px}
+.todo-priority.high{background:rgba(248,113,113,.1);color:var(--red)}
+.todo-priority.medium{background:rgba(251,191,36,.1);color:#f59e0b}
+.todo-priority.low{background:rgba(96,165,250,.1);color:var(--blue)}
+.todo-delete{width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:12px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.todo-delete:hover{background:rgba(248,113,113,.1);color:var(--red)}
+.todo-completed-toggle{padding:8px 0;margin-top:8px;border-top:1px solid var(--brd);cursor:pointer;font:600 10px 'Inter';color:var(--t2);display:flex;align-items:center;gap:6px;user-select:none}
+.todo-completed-toggle:hover{color:var(--t0)}
+.todo-completed-toggle .arrow{transition:transform .2s;font-size:8px}
+.todo-completed-toggle .arrow.open{transform:rotate(90deg)}
+.todo-completed-list{display:none}
+.todo-completed-list.show{display:block}
+
+/* Bible Verse */
+.verse-text{font:400 14px/1.6 'Inter';color:var(--t0);margin-bottom:8px;font-style:italic}
+.verse-ref{font:700 11px 'JetBrains Mono',mono;color:var(--accent)}
+.verse-loading{color:var(--t3);font-size:11px;padding:12px 0;text-align:center}
+
+/* Gratitude */
+.grat-date{font:600 11px 'JetBrains Mono',mono;color:var(--accent);margin-bottom:10px}
+.grat-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.grat-num{font:700 14px 'JetBrains Mono',mono;color:var(--t3);flex-shrink:0}
+.grat-input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none}
+.grat-input:focus{border-color:var(--accent)}
+.grat-saved{font:500 9px 'Inter';color:var(--green);margin-top:4px;opacity:0;transition:opacity .3s}
+.grat-saved.show{opacity:1}
+
+/* Stoic */
+.stoic-quote{font:400 14px/1.6 'Inter';color:var(--t0);margin-bottom:8px;font-style:italic}
+.stoic-author{font:700 11px 'JetBrains Mono',mono;color:var(--accent)}
+.stoic-refresh{margin-top:8px;padding:6px 12px;border-radius:6px;border:1px solid var(--brd);background:transparent;color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:all .15s}
+.stoic-refresh:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ═══ MANAGEMENT TAB ═══ */
+.mgmt-layout{display:grid;grid-template-columns:280px 1fr;gap:16px;min-height:400px}
+@media(max-width:900px){.mgmt-layout{grid-template-columns:1fr}}
+.mgmt-sidebar{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow3d)}
+.mgmt-main{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow3d)}
+.mgmt-add{display:flex;gap:6px;margin-bottom:12px}
+.mgmt-add-input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 12px 'Inter';outline:none}
+.mgmt-add-input:focus{border-color:var(--accent)}
+.mgmt-add-btn{padding:8px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow)}
+.mgmt-person{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.mgmt-person:hover{background:var(--bg3)}
+.mgmt-person.active{background:var(--accentDim)}
+.mgmt-avatar{width:32px;height:32px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font:700 12px 'Inter';color:var(--t2);flex-shrink:0}
+.mgmt-person.active .mgmt-avatar{background:var(--accent);color:#000}
+.mgmt-person-name{font:600 12px 'Inter';color:var(--t0)}
+.mgmt-person-sub{font:400 9px 'Inter';color:var(--t3)}
+.mgmt-person-remove{margin-left:auto;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:12px;border-radius:4px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.mgmt-person:hover .mgmt-person-remove{opacity:1}
+.mgmt-person-remove:hover{background:rgba(248,113,113,.1);color:var(--red)}
+.mgmt-note-form{display:flex;gap:8px;margin-bottom:16px}
+.mgmt-note-input{flex:1;padding:10px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none;min-height:60px;resize:vertical}
+.mgmt-note-input:focus{border-color:var(--accent)}
+.mgmt-note-btn{padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow);align-self:flex-end}
+.mgmt-note{padding:12px 0;border-bottom:1px solid var(--brd)}
+.mgmt-note:last-child{border-bottom:none}
+.mgmt-note-date{font:600 9px 'JetBrains Mono',mono;color:var(--accent);margin-bottom:4px}
+.mgmt-note-text{font:400 12px/1.5 'Inter';color:var(--t1)}
+.mgmt-empty{color:var(--t3);font-size:11px;text-align:center;padding:40px 0}
+.mgmt-title{font:700 9px 'Inter';text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:12px}
+.mgmt-selected-name{font:800 20px 'Inter';color:var(--t0);margin-bottom:4px}
+.mgmt-note-count{font:500 10px 'JetBrains Mono',mono;color:var(--t2);margin-bottom:16px}
+.mgmt-note-delete{border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:10px;float:right;padding:2px 4px;border-radius:4px}
+.mgmt-note-delete:hover{background:rgba(248,113,113,.1);color:var(--red)}
 </style>
 </head>
 <body>
@@ -282,6 +387,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
   </div>
 </header>
 
+<!-- Top-Level Tab Bar -->
+<div class="top-tabs" id="topTabs">
+  <button class="top-tab active" data-tab="data" onclick="switchTopTab('data')">Data</button>
+  <button class="top-tab" data-tab="personal" onclick="switchTopTab('personal')">Personal</button>
+  <button class="top-tab" data-tab="management" onclick="switchTopTab('management')">Management</button>
+</div>
 
 <div class="ov" id="ov" onclick="toggleSB()"></div>
 <nav class="sb" id="sb">
@@ -315,6 +426,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 
 <!-- Module Library -->
 <div class="panel" id="pMods"><div class="panel-hdr"><button class="panel-back" onclick="nav('dash')">←</button><div><div class="panel-t">Module Library</div><div class="panel-st">Click to add or remove</div></div></div><div class="lib-grid" id="libGrid"></div></div>
+
+<!-- ═══ DATA TAB ═══ -->
+<div class="tab-content active" id="tabData">
 
 <!-- Winnie's House -->
 <div class="doghouse-wrap" id="doghouseWrap">
@@ -374,6 +488,93 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
   </div>
 </section>
 
+</div><!-- /tabData -->
+
+<!-- ═══ PERSONAL TAB ═══ -->
+<div class="tab-content" id="tabPersonal">
+
+<div class="p-grid">
+  <!-- Weight Tracker -->
+  <div class="p-card">
+    <div class="p-card-title"><span class="p-icon">&#9878;</span> Weight Tracker</div>
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px">
+      <div class="wt-current" id="wtCurrent">--</div>
+      <div class="wt-delta" id="wtDelta"></div>
+    </div>
+    <div class="wt-form">
+      <input class="wt-input" id="wtInput" type="number" step="0.1" placeholder="Enter weight (lbs)">
+      <button class="wt-btn" onclick="logWeight()">Log</button>
+    </div>
+    <div class="wt-chart"><canvas id="wtChart"></canvas></div>
+  </div>
+
+  <!-- Todo List -->
+  <div class="p-card">
+    <div class="p-card-title"><span class="p-icon">&#9745;</span> To-Do List</div>
+    <div class="todo-form">
+      <input class="todo-input" id="todoInput" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTodo()">
+      <select class="todo-select" id="todoPriority">
+        <option value="medium">Med</option>
+        <option value="high">High</option>
+        <option value="low">Low</option>
+      </select>
+      <button class="wt-btn" onclick="addTodo()">Add</button>
+    </div>
+    <div id="todoActive"></div>
+    <div class="todo-completed-toggle" id="todoCompToggle" onclick="toggleCompletedTodos()" style="display:none">
+      <span class="arrow" id="todoCompArrow">&#9654;</span> Completed (<span id="todoCompCount">0</span>)
+    </div>
+    <div class="todo-completed-list" id="todoCompList"></div>
+  </div>
+
+  <!-- Daily Bible Verse -->
+  <div class="p-card">
+    <div class="p-card-title"><span class="p-icon">&#128214;</span> Daily Bible Verse</div>
+    <div id="verseContent"><div class="verse-loading">Loading verse...</div></div>
+  </div>
+
+  <!-- Daily Gratitude -->
+  <div class="p-card">
+    <div class="p-card-title"><span class="p-icon">&#128588;</span> Daily Gratitude</div>
+    <div class="grat-date" id="gratDate"></div>
+    <div class="grat-row"><span class="grat-num">1.</span><input class="grat-input" id="grat1" placeholder="I am grateful for..." oninput="saveGratitude()"></div>
+    <div class="grat-row"><span class="grat-num">2.</span><input class="grat-input" id="grat2" placeholder="I am grateful for..." oninput="saveGratitude()"></div>
+    <div class="grat-row"><span class="grat-num">3.</span><input class="grat-input" id="grat3" placeholder="I am grateful for..." oninput="saveGratitude()"></div>
+    <div class="grat-saved" id="gratSaved">Saved</div>
+  </div>
+
+  <!-- Daily Stoic -->
+  <div class="p-card full">
+    <div class="p-card-title"><span class="p-icon">&#127919;</span> Daily Stoic</div>
+    <div class="stoic-quote" id="stoicQuote"></div>
+    <div class="stoic-author" id="stoicAuthor"></div>
+    <button class="stoic-refresh" onclick="newStoicQuote()">New Quote</button>
+  </div>
+</div>
+
+</div><!-- /tabPersonal -->
+
+<!-- ═══ MANAGEMENT TAB ═══ -->
+<div class="tab-content" id="tabManagement">
+
+<div class="mgmt-layout">
+  <div class="mgmt-sidebar">
+    <div class="mgmt-title">Team Members</div>
+    <div class="mgmt-add">
+      <input class="mgmt-add-input" id="mgmtAddInput" placeholder="Add person..." onkeydown="if(event.key==='Enter')addTeamMember()">
+      <button class="mgmt-add-btn" onclick="addTeamMember()">Add</button>
+    </div>
+    <div id="mgmtList"></div>
+  </div>
+  <div class="mgmt-main">
+    <div id="mgmtDetail">
+      <div class="mgmt-empty">Select a team member to view notes</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /tabManagement -->
+
 </div>
 
 <script>
@@ -398,12 +599,6 @@ const MODS=[
   {id:'email-stats',n:'Email Marketing',i:'📧',d:'Subscribers & rates',s:'Shopify',sz:'sm',on:0,cat:'Marketing'},
   {id:'upcoming-events',n:'Events',i:'📅',d:'Launches & promos',s:'Manual',sz:'md',on:1,cat:'Planning'},
   {id:'golf-calendar',n:'Golf Tournaments',i:'⛳',d:'PGA & LIV schedule with countdown',s:'Built-in',sz:'md',on:1,cat:'Planning'},
-  {id:'weight-tracker',n:'Weight Tracker',i:'⚖️',d:'Log daily weight with chart',s:'Local',sz:'md',on:0,cat:'Personal'},
-  {id:'todo-list',n:'To-Do List',i:'☑️',d:'Tasks with priorities',s:'Local',sz:'md',on:0,cat:'Personal'},
-  {id:'bible-verse',n:'Daily Bible Verse',i:'📖',d:'Daily scripture',s:'Web',sz:'sm',on:0,cat:'Personal'},
-  {id:'gratitude',n:'Daily Gratitude',i:'🙏',d:'Three daily gratitudes',s:'Local',sz:'sm',on:0,cat:'Personal'},
-  {id:'daily-stoic',n:'Daily Stoic',i:'🏛️',d:'Stoic wisdom',s:'Built-in',sz:'md',on:0,cat:'Personal'},
-  {id:'team-members',n:'Team Members',i:'👥',d:'1:1 meeting notes',s:'Local',sz:'xl',on:0,cat:'Management'},
 ];
 
 const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT',short:'Richmans Sport',color:'#7eb8e0',logo:'https://richmanssport.com/cdn/shop/files/Artboard_6_copy_3.png?v=1720464043',ig:'@richmanssport',tt:'@richmanssport',web:'richmanssport.com',igGoal:25000,igCur:12847,revGoal:250000,revCur:250000,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[
@@ -418,7 +613,7 @@ const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT'
   {i:'🧢',t:'Video',cap:'The Golf hat reveal #teetimesecured',vw:'15.1K',lk:'1.1K',sh:'210',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#1a1a10,#20200a)'},
   {i:'⛳',t:'Video',cap:'Which Richmans print is your favorite?',vw:'6.8K',lk:'480',sh:'72',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#102010,#0a200a)'},
   {i:'🖼️',t:'Video',cap:'Golf wall art collection walkthrough',vw:'9.3K',lk:'710',sh:'120',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#20100a,#2a1a10)'},
-]},'marketwake':{id:'marketwake',name:'MARKETWAKE',short:'Marketwake',color:'#3b82f6',logo:'',ig:'@marketwake',tt:'@marketwake',web:'marketwake.com',igGoal:10000,igCur:0,revGoal:1000000,revCur:0,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[],ttPosts:[]},'champagne-celebrations':{id:'champagne-celebrations',name:'CHAMPAGNE CELEBRATIONS',short:'Champagne Celebrations',color:'#d4af37',logo:'',ig:'@champagnecelebrations',tt:'@champagnecelebrations',web:'champagnecelebrations.com',igGoal:50000,igCur:0,revGoal:500000,revCur:0,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[],ttPosts:[]},'personal':{id:'personal',name:'PERSONAL',short:'Personal',color:'#34d399',logo:'',ig:'',tt:'',web:'',igGoal:1,igCur:0,revGoal:1,revCur:0,igGL:'',revGL:'',theme:'night',mods:['weight-tracker','todo-list','bible-verse','gratitude','daily-stoic'],order:null,sizes:{},igPosts:[],ttPosts:[],hideGoals:true,hidePosts:true},'management':{id:'management',name:'MANAGEMENT',short:'Management',color:'#a855f7',logo:'',ig:'',tt:'',web:'',igGoal:1,igCur:0,revGoal:1,revCur:0,igGL:'',revGL:'',theme:'night',mods:['team-members'],order:null,sizes:{},igPosts:[],ttPosts:[],hideGoals:true,hidePosts:true}};
+]},'marketwake':{id:'marketwake',name:'MARKETWAKE',short:'Marketwake',color:'#3b82f6',logo:'',ig:'@marketwake',tt:'@marketwake',web:'marketwake.com',igGoal:10000,igCur:0,revGoal:1000000,revCur:0,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[],ttPosts:[]},'champagne-celebrations':{id:'champagne-celebrations',name:'CHAMPAGNE CELEBRATIONS',short:'Champagne Celebrations',color:'#d4af37',logo:'',ig:'@champagnecelebrations',tt:'@champagnecelebrations',web:'champagnecelebrations.com',igGoal:50000,igCur:0,revGoal:500000,revCur:0,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[],ttPosts:[]}};
 
 let P=JSON.parse(localStorage.getItem('rs-p3')||'null')||JSON.parse(JSON.stringify(DFLT_PROFILES));
 let CID=localStorage.getItem('rs-cid3')||'richmans-sport';
@@ -442,7 +637,7 @@ function loadP(){
 }
 function saveP(){const p=gp();p.theme=theme;p.mods=[...actMods];p.order=[...modOrder];p.sizes={...modSizes};sp()}
 
-function switchP(id){saveP();CID=id;localStorage.setItem('rs-cid3',id);verseLoaded=false;stoicLoaded=false;loadP();renderAll();renderPD()}
+function switchP(id){saveP();CID=id;localStorage.setItem('rs-cid3',id);loadP();renderAll();renderPD()}
 function togglePD(){document.getElementById('profDD').classList.toggle('show')}
 function renderPD(){
   let h='';Object.values(P).forEach(p=>{h+=`<div class="pf-opt ${p.id===CID?'active':''}" onclick="switchP('${p.id}')"><span class="pf-dot" style="background:${p.color}"></span><div><div class="pf-name">${p.short}</div><div class="pf-sub">${p.web}</div></div></div>`});
@@ -455,16 +650,17 @@ function toggleSB(){document.getElementById('sb').classList.toggle('open');docum
 function nav(pg){
   document.getElementById('sb').classList.remove('open');document.getElementById('ov').classList.remove('open');
   document.getElementById('pConn').classList.remove('vis');document.getElementById('pMods').classList.remove('vis');
-  ['goalsBar','dash','postsSec','doghouseWrap'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=''});
+  ['goalsBar','dash','postsSec'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=''});
   document.querySelector('.hdr').style.display='';
-  const p=gp();
-  document.getElementById('goalsBar').style.display=p.hideGoals?'none':'';
-  document.getElementById('postsSec').style.display=p.hidePosts?'none':'';
-  document.getElementById('doghouseWrap').style.display=p.hideGoals?'none':'';
+  document.getElementById('topTabs').style.display='';
+  // Show all tab contents normally
+  document.querySelectorAll('.tab-content').forEach(tc=>{tc.style.display='';tc.classList.remove('active')});
+  const activeTab=document.querySelector('.top-tab.active');
+  if(activeTab){const tabId='tab'+activeTab.dataset.tab.charAt(0).toUpperCase()+activeTab.dataset.tab.slice(1);const el=document.getElementById(tabId);if(el)el.classList.add('active')}
   document.querySelectorAll('.sb-lnk').forEach(l=>l.classList.remove('act'));
-  if(pg==='dash'){document.querySelectorAll('.sb-lnk')[0].classList.add('act')}
-  else if(pg==='conn'){document.querySelectorAll('.sb-lnk')[1].classList.add('act');document.getElementById('pConn').classList.add('vis');document.querySelector('.hdr').style.display='none';['goalsBar','dash','postsSec','doghouseWrap'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'})}
-  else if(pg==='modules'){document.querySelectorAll('.sb-lnk')[2].classList.add('act');document.getElementById('pMods').classList.add('vis');document.querySelector('.hdr').style.display='none';['goalsBar','dash','postsSec','doghouseWrap'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'});renderLib()}
+  if(pg==='dash'){document.querySelectorAll('.sb-lnk')[0].classList.add('act');switchTopTab(currentTopTab)}
+  else if(pg==='conn'){document.querySelectorAll('.sb-lnk')[1].classList.add('act');document.getElementById('pConn').classList.add('vis');document.querySelector('.hdr').style.display='none';document.getElementById('topTabs').style.display='none';document.querySelectorAll('.tab-content').forEach(tc=>tc.style.display='none')}
+  else if(pg==='modules'){document.querySelectorAll('.sb-lnk')[2].classList.add('act');document.getElementById('pMods').classList.add('vis');document.querySelector('.hdr').style.display='none';document.getElementById('topTabs').style.display='none';document.querySelectorAll('.tab-content').forEach(tc=>tc.style.display='none');renderLib()}
 }
 
 function getSz(id){return modSizes[id]||(MODS.find(m=>m.id===id)||{}).sz||'sm'}
@@ -514,7 +710,7 @@ function renderDash(){
     h+=`<div class="mod ${sz}" id="m-${id}"><div class="mh" data-did="${id}"><div class="mh-left"><span class="mh-icon">${r.i}</span><span class="mh-title">${r.n}</span></div><div class="mh-right"><button class="mh-btn" onclick="togSP('${id}',event)" title="Resize">⤢</button><button class="mh-btn grip" title="Drag to move">⠿</button></div><div class="sp" id="sp-${id}"><div class="sp-o ${sz==='sm'?'act':''}" onclick="setSz('${id}','sm')">Small</div><div class="sp-o ${sz==='md'?'act':''}" onclick="setSz('${id}','md')">Medium</div><div class="sp-o ${sz==='lg'?'act':''}" onclick="setSz('${id}','lg')">Large</div><div class="sp-o ${sz==='xl'?'act':''}" onclick="setSz('${id}','xl')">Full</div></div></div>${gc(id)}</div>`});
   c.innerHTML=h;
   document.querySelectorAll('.mh[data-did]').forEach(el=>initDrag(el,el.getAttribute('data-did')));
-  setTimeout(()=>{if(actMods.includes('ig-growth'))mkIGC();if(actMods.includes('revenue-chart'))mkRC();postRenderModules()},50);
+  setTimeout(()=>{if(actMods.includes('ig-growth'))mkIGC();if(actMods.includes('revenue-chart'))mkRC()},50);
 }
 
 function gc(id){
@@ -538,22 +734,7 @@ function gc(id){
   case 'email-stats':return `<div class="bn m">4,290</div><div class="ss">Subscribers</div><div class="sc up">+186</div><div class="mg c3"><div><div class="mv">42%</div><div class="ml">Open Rate</div></div><div><div class="mv">3.8%</div><div class="ml">Click Rate</div></div><div><div class="mv">$820</div><div class="ml">Revenue</div></div></div>`;
   case 'upcoming-events':return `<div class="ev"><div class="evd"><div class="evm">Mar</div><div class="evdy">20</div></div><div><div class="evt">Spring Collection</div><div class="evds">New polos & hats</div><span class="evtag">Launch</span></div></div><div class="ev"><div class="evd"><div class="evm">Mar</div><div class="evdy">28</div></div><div><div class="evt">Masters Week Sale</div><div class="evds">15% off sitewide</div><span class="evtag">Promo</span></div></div><div class="ev"><div class="evd"><div class="evm">Apr</div><div class="evdy">05</div></div><div><div class="evt">Influencer Shoot</div><div class="evds">Content for IG & TT</div><span class="evtag">Collab</span></div></div>`;
   case 'golf-calendar':return renderGolfCal();
-  case 'weight-tracker':return `<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px"><div style="font:800 28px 'JetBrains Mono',mono" id="wtCurrent">--</div><div style="font:600 10px 'JetBrains Mono',mono" id="wtDelta"></div></div><div style="display:flex;gap:8px;margin-bottom:12px"><input id="wtInput" type="number" step="0.1" placeholder="Weight (lbs)" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 12px 'JetBrains Mono',mono;outline:none"><button onclick="logWeight()" style="padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow)">Log</button></div><div style="height:200px"><canvas id="wtChart"></canvas></div>`;
-  case 'todo-list':return `<div style="display:flex;gap:6px;margin-bottom:12px"><input id="todoInput" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTodo()" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 12px 'Inter';outline:none"><select id="todoPriority" style="padding:6px 8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:600 10px 'Inter';outline:none"><option value="medium">Med</option><option value="high">High</option><option value="low">Low</option></select><button onclick="addTodo()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow)">Add</button></div><div id="todoActive"></div><div id="todoCompToggle" onclick="toggleCompletedTodos()" style="display:none;align-items:center;gap:6px;padding:10px 0 4px;cursor:pointer;font:600 10px 'Inter';color:var(--t2);border-top:1px solid var(--brd);margin-top:8px"><span id="todoCompArrow" style="font-size:8px;transition:transform .2s;display:inline-block">&#9654;</span> Completed (<span id="todoCompCount">0</span>)</div><div id="todoCompList" style="display:none"></div>`;
-  case 'bible-verse':return `<div id="verseContent"><div style="color:var(--t3);font-size:11px;text-align:center;padding:16px 0">Loading verse...</div></div>`;
-  case 'gratitude':return `<div style="font:500 10px 'Inter';color:var(--t2);margin-bottom:10px" id="gratDate"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font:700 12px 'JetBrains Mono',mono;color:var(--t3)">1.</span><input id="grat1" placeholder="I am grateful for..." oninput="saveGratitude()" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font:700 12px 'JetBrains Mono',mono;color:var(--t3)">2.</span><input id="grat2" placeholder="I am grateful for..." oninput="saveGratitude()" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none"></div><div style="display:flex;align-items:center;gap:8px"><span style="font:700 12px 'JetBrains Mono',mono;color:var(--t3)">3.</span><input id="grat3" placeholder="I am grateful for..." oninput="saveGratitude()" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none"></div><div id="gratSaved" style="font:500 9px 'Inter';color:var(--green);text-align:right;margin-top:6px;opacity:0;transition:opacity .3s">Saved</div>`;
-  case 'daily-stoic':return `<div id="stoicQuote" style="font:300 16px/1.6 'Inter';color:var(--t0);padding:8px 0"></div><div id="stoicAuthor" style="font:600 11px 'Inter';color:var(--accent);margin-top:8px"></div><button onclick="newStoicQuote()" style="margin-top:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer">New Quote</button>`;
-  case 'team-members':return `<div style="display:grid;grid-template-columns:240px 1fr;gap:16px;min-height:300px"><div><div style="font:700 9px 'Inter';text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:8px">Team Members</div><div style="display:flex;gap:6px;margin-bottom:12px"><input id="mgmtAddInput" placeholder="Add person..." onkeydown="if(event.key==='Enter')addTeamMember()" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 11px 'Inter';outline:none"><button onclick="addTeamMember()" style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 9px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow)">Add</button></div><div id="mgmtList"></div></div><div style="border-left:1px solid var(--brd);padding-left:16px" id="mgmtDetail"><div style="color:var(--t3);font-size:11px;text-align:center;padding:40px 0">Select a team member to view notes</div></div></div>`;
   default:return `<div style="color:var(--t3);font-size:10px;padding:16px 0;text-align:center">Connect data source</div>`}
-}
-
-function postRenderModules(){
-  if(document.getElementById('wtChart')){renderWeightDisplay();renderWeightChart()}
-  if(document.getElementById('todoActive'))renderTodos();
-  if(document.getElementById('verseContent'))loadVerse();
-  if(document.getElementById('gratDate'))loadGratitude();
-  if(document.getElementById('stoicQuote'))loadStoic();
-  if(document.getElementById('mgmtList'))renderTeam();
 }
 
 function mkIGC(){const el=document.getElementById('igC');if(!el)return;const ctx=el.getContext('2d');const s=getComputedStyle(document.documentElement);const a=s.getPropertyValue('--accent').trim();const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,a+'cc');g.addColorStop(1,a+'22');new Chart(ctx,{type:'bar',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[9420,10105,10780,11350,12505,12847],backgroundColor:g,borderRadius:4,barThickness:24}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:a,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,callbacks:{label:c=>c.parsed.y.toLocaleString()+' followers'}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:9}},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>(v/1000).toFixed(1)+'k'},border:{display:false},suggestedMin:8000}}}})}
@@ -745,14 +926,7 @@ function updateLiveFollowers(){
   }
 }
 
-function renderAll(){
-  const p=gp();
-  verseLoaded=false;stoicLoaded=false;
-  document.getElementById('goalsBar').style.display=p.hideGoals?'none':'';
-  document.getElementById('postsSec').style.display=p.hidePosts?'none':'';
-  document.getElementById('doghouseWrap').style.display=p.hideGoals?'none':'';
-  renderDash();renderG();renderPosts();fetchGA4();try{drawDoghouse();drawSign()}catch(e){}
-}
+function renderAll(){renderDash();renderG();renderPosts();fetchGA4();try{drawDoghouse();drawSign()}catch(e){};renderWeightDisplay();renderTodos()}
 
 // ═══════════════════════════════════════
 // LIVE GA4 DATA
@@ -871,7 +1045,30 @@ updateClock();
 
 // Init
 document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-loadP();renderPD();renderAll();
+loadP();renderPD();renderAll();initTopTabs();
+
+// ═══════════════════════════════════════
+// TOP-LEVEL TAB SYSTEM
+// ═══════════════════════════════════════
+let currentTopTab=localStorage.getItem('cc-topTab')||'data';
+
+function switchTopTab(tab){
+  currentTopTab=tab;
+  localStorage.setItem('cc-topTab',tab);
+  document.querySelectorAll('.top-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.remove('active'));
+  const target=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(target)target.classList.add('active');
+  // Re-render personal tab charts when switching to it
+  if(tab==='personal'){renderWeightChart();renderTodos();loadGratitude();loadVerse();loadStoic()}
+  if(tab==='management')renderTeam();
+  if(tab==='data'){renderDash();renderG()}
+}
+
+// Restore tab on load
+function initTopTabs(){
+  switchTopTab(currentTopTab);
+}
 
 // ═══════════════════════════════════════
 // PERSONAL — Weight Tracker
@@ -900,7 +1097,6 @@ function renderWeightDisplay(){
   const log=getWeightLog();
   const cur=document.getElementById('wtCurrent');
   const delta=document.getElementById('wtDelta');
-  if(!cur||!delta)return;
   if(!log.length){cur.textContent='--';delta.textContent='';return}
   const last=log[log.length-1];
   cur.textContent=last.weight+' lbs';
@@ -956,7 +1152,6 @@ function deleteTodo(id){
   saveTodos(todos);renderTodos();
 }
 
-function todoPC(p){return p==='high'?['rgba(248,113,113,.1)','var(--red)']:p==='medium'?['rgba(251,191,36,.1)','#f59e0b']:['rgba(96,165,250,.1)','var(--blue)']}
 function renderTodos(){
   const todos=getTodos();
   const active=todos.filter(t=>!t.done);
@@ -964,24 +1159,18 @@ function renderTodos(){
   const priorityOrder={high:0,medium:1,low:2};
   active.sort((a,b)=>priorityOrder[a.priority]-priorityOrder[b.priority]);
   const ac=document.getElementById('todoActive');
-  if(!ac)return;
   if(!active.length){ac.innerHTML='<div style="color:var(--t3);font-size:11px;padding:12px 0;text-align:center">No active tasks</div>'}
-  else{ac.innerHTML=active.map(t=>{const pc=todoPC(t.priority);return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd)"><button onclick="toggleTodo(${t.id})" style="width:20px;height:20px;border-radius:4px;border:1.5px solid var(--brd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--green);font-size:12px"></button><span style="flex:1;font-size:12px">${escH(t.text)}</span><span style="font:700 8px 'Inter';text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:4px;background:${pc[0]};color:${pc[1]}">${t.priority}</span><button onclick="deleteTodo(${t.id})" style="width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px">&times;</button></div>`}).join('')}
+  else{ac.innerHTML=active.map(t=>`<div class="todo-item"><button class="todo-check" onclick="toggleTodo(${t.id})"></button><span class="todo-text">${escH(t.text)}</span><span class="todo-priority ${t.priority}">${t.priority}</span><button class="todo-delete" onclick="deleteTodo(${t.id})">&times;</button></div>`).join('')}
   const toggle=document.getElementById('todoCompToggle');
   const compList=document.getElementById('todoCompList');
-  if(!toggle||!compList)return;
   document.getElementById('todoCompCount').textContent=completed.length;
   toggle.style.display=completed.length?'flex':'none';
-  compList.innerHTML=completed.map(t=>{const pc=todoPC(t.priority);return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd)"><button onclick="toggleTodo(${t.id})" style="width:20px;height:20px;border-radius:4px;border:1.5px solid var(--green);background:var(--green);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#000;font-size:12px">&#10003;</button><span style="flex:1;font-size:12px;text-decoration:line-through;color:var(--t3)">${escH(t.text)}</span><span style="font:700 8px 'Inter';text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:4px;background:${pc[0]};color:${pc[1]}">${t.priority}</span><button onclick="deleteTodo(${t.id})" style="width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px">&times;</button></div>`}).join('');
+  compList.innerHTML=completed.map(t=>`<div class="todo-item"><button class="todo-check done" onclick="toggleTodo(${t.id})">&#10003;</button><span class="todo-text done">${escH(t.text)}</span><span class="todo-priority ${t.priority}">${t.priority}</span><button class="todo-delete" onclick="deleteTodo(${t.id})">&times;</button></div>`).join('');
 }
 
 function toggleCompletedTodos(){
-  const cl=document.getElementById('todoCompList');
-  const ar=document.getElementById('todoCompArrow');
-  if(!cl||!ar)return;
-  const showing=cl.style.display==='block';
-  cl.style.display=showing?'none':'block';
-  ar.style.transform=showing?'':'rotate(90deg)';
+  document.getElementById('todoCompList').classList.toggle('show');
+  document.getElementById('todoCompArrow').classList.toggle('open');
 }
 
 function escH(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
@@ -997,16 +1186,16 @@ async function loadVerse(){
     const res=await fetch('https://beta.ourmanna.com/api/v1/get?format=json&order=daily');
     const d=await res.json();
     const v=d.verse;
-    el.innerHTML=`<div style="font:400 14px/1.6 'Inter';color:var(--t0);margin-bottom:8px;font-style:italic">"${v.details.text}"</div><div style="font:700 11px 'JetBrains Mono',mono;color:var(--accent)">${v.details.reference}</div>`;
+    el.innerHTML=`<div class="verse-text">"${v.details.text}"</div><div class="verse-ref">${v.details.reference}</div>`;
     verseLoaded=true;
   }catch(e){
     try{
       const res2=await fetch('https://bible-api.com/?random=verse');
       const d2=await res2.json();
-      el.innerHTML=`<div style="font:400 14px/1.6 'Inter';color:var(--t0);margin-bottom:8px;font-style:italic">"${d2.text.trim()}"</div><div style="font:700 11px 'JetBrains Mono',mono;color:var(--accent)">${d2.reference}</div>`;
+      el.innerHTML=`<div class="verse-text">"${d2.text.trim()}"</div><div class="verse-ref">${d2.reference}</div>`;
       verseLoaded=true;
     }catch(e2){
-      el.innerHTML='<div style="color:var(--t3);font-size:11px;padding:12px 0;text-align:center">Could not load verse. Try refreshing.</div>';
+      el.innerHTML='<div class="verse-loading">Could not load verse. Try refreshing.</div>';
     }
   }
 }
@@ -1019,8 +1208,7 @@ function getTodayKey(){return new Date().toISOString().slice(0,10)}
 
 function loadGratitude(){
   const today=getTodayKey();
-  const gd=document.getElementById('gratDate');if(!gd)return;
-  gd.textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('gratDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   const grat=getGratitude();
   const todayData=grat[today]||['','',''];
   document.getElementById('grat1').value=todayData[0]||'';
@@ -1037,7 +1225,7 @@ function saveGratitude(){
     grat[today]=[document.getElementById('grat1').value,document.getElementById('grat2').value,document.getElementById('grat3').value];
     localStorage.setItem('cc-gratitude',JSON.stringify(grat));
     const saved=document.getElementById('gratSaved');
-    if(saved){saved.style.opacity='1';setTimeout(()=>saved.style.opacity='0',1500);}
+    saved.classList.add('show');setTimeout(()=>saved.classList.remove('show'),1500);
   },500);
 }
 
@@ -1081,12 +1269,11 @@ const STOIC_QUOTES=[
 let stoicLoaded=false;
 function loadStoic(){
   if(stoicLoaded)return;
-  const sq=document.getElementById('stoicQuote');if(!sq)return;
   // Use day of year as index for consistency within a day
   const now=new Date();const start=new Date(now.getFullYear(),0,0);const diff=now-start;const dayOfYear=Math.floor(diff/(1000*60*60*24));
   const idx=dayOfYear%STOIC_QUOTES.length;
   const q=STOIC_QUOTES[idx];
-  sq.textContent='"'+q.q+'"';
+  document.getElementById('stoicQuote').textContent='"'+q.q+'"';
   document.getElementById('stoicAuthor').textContent='- '+q.a;
   stoicLoaded=true;
 }
@@ -1094,8 +1281,7 @@ function loadStoic(){
 function newStoicQuote(){
   const idx=Math.floor(Math.random()*STOIC_QUOTES.length);
   const q=STOIC_QUOTES[idx];
-  const sq=document.getElementById('stoicQuote');if(!sq)return;
-  sq.textContent='"'+q.q+'"';
+  document.getElementById('stoicQuote').textContent='"'+q.q+'"';
   document.getElementById('stoicAuthor').textContent='- '+q.a;
 }
 
@@ -1150,23 +1336,22 @@ function renderTeam(){
   const team=getTeam();
   const list=document.getElementById('mgmtList');
   const detail=document.getElementById('mgmtDetail');
-  if(!list||!detail)return;
   if(!team.length){
     list.innerHTML='<div style="color:var(--t3);font-size:11px;padding:16px 0;text-align:center">No team members yet</div>';
   }else{
-    list.innerHTML=team.map(m=>{const isAct=m.id===selectedMember;return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:2px;${isAct?'background:var(--accentDim)':''};" onclick="selectMember(${m.id})" onmouseover="this.style.background=this.style.background||'var(--bg3)'" onmouseout="this.style.background='${isAct?'var(--accentDim)':''}'" ><div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 12px 'Inter';flex-shrink:0;${isAct?'background:var(--accent);color:#000':'background:var(--bg3);color:var(--t2)'}">${getInitials(m.name)}</div><div><div style="font:600 12px 'Inter';color:var(--t0)">${escH(m.name)}</div><div style="font:400 9px 'Inter';color:var(--t3)">${m.notes.length} note${m.notes.length!==1?'s':''}</div></div><button onclick="event.stopPropagation();removeTeamMember(${m.id})" style="margin-left:auto;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:12px;border-radius:4px;display:flex;align-items:center;justify-content:center">&times;</button></div>`}).join('');
+    list.innerHTML=team.map(m=>`<div class="mgmt-person ${m.id===selectedMember?'active':''}" onclick="selectMember(${m.id})"><div class="mgmt-avatar">${getInitials(m.name)}</div><div><div class="mgmt-person-name">${escH(m.name)}</div><div class="mgmt-person-sub">${m.notes.length} note${m.notes.length!==1?'s':''}</div></div><button class="mgmt-person-remove" onclick="event.stopPropagation();removeTeamMember(${m.id})">&times;</button></div>`).join('');
   }
   if(!selectedMember){
-    detail.innerHTML='<div style="color:var(--t3);font-size:11px;text-align:center;padding:40px 0">Select a team member to view notes</div>';return;
+    detail.innerHTML='<div class="mgmt-empty">Select a team member to view notes</div>';return;
   }
   const member=team.find(m=>m.id===selectedMember);
-  if(!member){detail.innerHTML='<div style="color:var(--t3);font-size:11px;text-align:center;padding:40px 0">Member not found</div>';return}
-  let h=`<div style="font:800 20px 'Inter';color:var(--t0);margin-bottom:4px">${escH(member.name)}</div><div style="font:500 10px 'JetBrains Mono',mono;color:var(--t2);margin-bottom:16px">${member.notes.length} note${member.notes.length!==1?'s':''}</div>`;
-  h+=`<div style="display:flex;gap:8px;margin-bottom:16px"><textarea id="mgmtNoteInput" placeholder="Add a note for your 1:1..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addNote()}" style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none;min-height:60px;resize:vertical"></textarea><button onclick="addNote()" style="padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow);align-self:flex-end">Save</button></div>`;
+  if(!member){detail.innerHTML='<div class="mgmt-empty">Member not found</div>';return}
+  let h=`<div class="mgmt-selected-name">${escH(member.name)}</div><div class="mgmt-note-count">${member.notes.length} note${member.notes.length!==1?'s':''}</div>`;
+  h+=`<div class="mgmt-note-form"><textarea class="mgmt-note-input" id="mgmtNoteInput" placeholder="Add a note for your 1:1..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addNote()}"></textarea><button class="mgmt-note-btn" onclick="addNote()">Save</button></div>`;
   if(!member.notes.length){h+='<div style="color:var(--t3);font-size:11px;padding:16px 0;text-align:center">No notes yet</div>'}
   else{member.notes.forEach((n,i)=>{
     const d=new Date(n.date);
-    h+=`<div style="padding:12px 0;border-bottom:1px solid var(--brd)"><button onclick="deleteNote(${member.id},${i})" style="border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:10px;float:right;padding:2px 4px;border-radius:4px">&times;</button><div style="font:600 9px 'JetBrains Mono',mono;color:var(--accent);margin-bottom:4px">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})} at ${d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div><div style="font:400 12px/1.5 'Inter';color:var(--t1)">${escH(n.text)}</div></div>`;
+    h+=`<div class="mgmt-note"><button class="mgmt-note-delete" onclick="deleteNote(${member.id},${i})">&times;</button><div class="mgmt-note-date">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})} at ${d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div><div class="mgmt-note-text">${escH(n.text)}</div></div>`;
   })}
   detail.innerHTML=h;
 }
