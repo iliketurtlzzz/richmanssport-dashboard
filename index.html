@@ -314,7 +314,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 
 <!-- Buddy's House -->
 <div class="doghouse-wrap" id="doghouseWrap">
-  <div class="doghouse" id="doghouse" onclick="wakePuppy()" title="Click to wake Buddy">
+  <div class="doghouse" id="doghouse" onclick="sendToSleep()" title="Click to send Buddy to bed">
     <div class="dh-house"><canvas id="dhCanvas" width="40" height="26"></canvas>
       <div class="dh-zzz" id="dhZzz" style="display:none"><span style="font-size:9px">z</span><span>z</span><span>Z</span></div>
     </div>
@@ -637,6 +637,7 @@ function renderPostCard(post, platform) {
     </div>
     <div class="post-info">
       <div class="post-cap">${post.title}</div>
+      <div class="post-met"><span>${platform==='ig'?'📷 Instagram':'🎵 TikTok'}</span></div>
       <div class="post-date">${post.date}</div>
     </div>
   </a>`;
@@ -761,30 +762,37 @@ const PUP={el:null,canvas:null,ctx:null,x:300,y:400,dir:1,state:'walk',frame:0,s
   // Path corners: top-left, top-right, bottom-right, bottom-left
   path:[],pathIdx:0,targetX:0,targetY:0};
 
-function col(){return document.documentElement.hasAttribute('data-theme')?'#5a9cc5':'#ffffff'}
-function bgC(){return document.documentElement.hasAttribute('data-theme')?'#f5f0eb':'#0a0a0a'}
+// Puppy palette — adapts to theme
+function pupPal(){
+  const day=document.documentElement.hasAttribute('data-theme');
+  return day?{
+    body:'#b08050',bodyLt:'#d4a060',dark:'#705030',white:'#f0e8d8',nose:'#3a2a1a',eye:'#2a1a0a',tongue:'#d06070',outline:'#5a4030'
+  }:{
+    body:'#c8a878',bodyLt:'#e0c898',dark:'#8a6840',white:'#f8f4ee',nose:'#2a1a0a',eye:'#1a0a00',tongue:'#e07080',outline:'#6a5030'
+  };
+}
 function px(c,x,y,w,h){c.fillRect(x,y,w||1,h||1)}
 
 function drawDoghouse(){
   const cv=document.getElementById('dhCanvas');if(!cv)return;
-  const c=cv.getContext('2d');const cl=col();const bg=bgC();
-  c.clearRect(0,0,40,26);c.fillStyle=cl;
+  const c=cv.getContext('2d');const p=pupPal();
+  c.clearRect(0,0,40,26);c.fillStyle=p.body;
   // Roof
   for(let i=0;i<6;i++)c.fillRect(9-i*2,i,22+i*4,1);
   // Walls
   c.fillRect(1,6,38,20);
   // Door
-  c.fillStyle=bg;c.fillRect(13,10,14,16);c.fillRect(14,8,12,2);c.fillRect(15,7,10,1);
-  c.fillStyle=cl;
+  c.fillStyle=p.dark;c.fillRect(13,10,14,16);c.fillRect(14,8,12,2);c.fillRect(15,7,10,1);
+  c.fillStyle=p.body;
 }
 function drawSign(){
   const cv=document.getElementById('dhSign');if(!cv)return;
-  const c=cv.getContext('2d');const cl=col();const bg=bgC();
-  c.clearRect(0,0,18,22);c.fillStyle=cl;
+  const c=cv.getContext('2d');const p=pupPal();
+  c.clearRect(0,0,18,22);c.fillStyle=p.body;
   c.fillRect(8,0,2,22); // post
   c.fillRect(0,3,18,11); // board
   // BUDDY in 3x5 pixel font
-  c.fillStyle=bg;
+  c.fillStyle=p.white;
   // B
   px(c,2,5);px(c,2,6);px(c,2,7);px(c,2,8);px(c,2,9);px(c,3,5);px(c,3,7);px(c,3,9);px(c,4,6);px(c,4,8);
   // U
@@ -849,115 +857,95 @@ function posPup(){
 
 function drawBuddy(){
   const c=PUP.ctx;c.clearRect(0,0,24,24);
-  const cl=col();const bg=bgC();const f=Math.floor(PUP.frame)%4;
+  const p=pupPal();const f=Math.floor(PUP.frame)%4;
   PUP.t+=0.015;
-  const bob=Math.round(Math.sin(PUP.t)*0.4);
   const isPlay=PUP.state==='pet'||PUP.state==='treat';
-  // Play bow: front dips down, butt up
-  const headDip=isPlay?2:0;
-  const tailLift=isPlay?-3:0;
-  c.fillStyle=cl;
+  const bob=isPlay?0:Math.round(Math.sin(PUP.t)*0.4);
+  const headDip=isPlay?1:0;
 
   if(PUP.state==='sleep'){
-    // Curled up
-    c.fillRect(7,17,10,4);c.fillRect(6,16,2,2);c.fillRect(16,16,2,2);
-    // Big sleeping head
-    c.fillRect(1,10,11,8);c.fillRect(0,12,1,4);c.fillRect(12,12,1,4);
-    // Ears drooped
-    c.fillRect(0,9,3,3);c.fillRect(10,9,3,3);
-    // Snout
-    c.fillRect(0,15,3,2);
-    // Closed eyes (lines)
-    c.fillStyle=bg;px(c,3,13,3,1);px(c,8,13,3,1);
-    // Nose
-    c.fillStyle='#e88a9e';px(c,1,16,2,1);
-    // Tail
-    c.fillStyle=cl;px(c,17,15,2,1);px(c,18,14,2,1);
+    // Curled up sleeping puppy
+    c.fillStyle=p.body;c.fillRect(6,15,12,5);// body
+    c.fillStyle=p.white;c.fillRect(8,17,6,3);// belly
+    c.fillStyle=p.body;c.fillRect(1,10,10,7);// big head
+    c.fillStyle=p.dark;c.fillRect(0,9,3,4);c.fillRect(9,9,3,4);// ears
+    c.fillStyle=p.white;c.fillRect(2,14,5,3);// muzzle
+    c.fillStyle=p.nose;px(c,2,14,2,1);// nose
+    c.fillStyle=p.eye;px(c,4,12,2,1);px(c,7,12,2,1);// closed eyes
+    c.fillStyle=p.body;px(c,17,14,2,1);px(c,18,13,2,1);// tail
     return;
   }
 
-  // ══ HEAD — comically big, round ══
-  const hy=bob+headDip;
-  // Main head — round shape
-  c.fillRect(2,1+hy,10,10);
-  c.fillRect(1,2+hy,12,8);
-  c.fillRect(0,3+hy,14,6);
-  // Forehead roundness
-  c.fillRect(3,0+hy,8,1);
-  // Cheeks (wider)
-  c.fillRect(0,6+hy,1,3);c.fillRect(13,6+hy,1,3);
-  // Floppy ears — hang down past head
-  c.fillRect(0,0+hy,2,6);c.fillRect(-1,2+hy,1,3);
-  c.fillRect(12,0+hy,2,6);c.fillRect(14,2+hy,1,3);
-  // Snout — round muzzle
-  c.fillRect(2,9+hy,7,3);c.fillRect(1,10+hy,2,1);
-  // Nose — pink & shiny
-  c.fillStyle='#e88a9e';px(c,3,9+hy,3,2);
-  c.fillStyle='#ffb0c0';px(c,4,9+hy); // nose shine
+  const by=bob+headDip;
+  // ══ BIG HEAD ══
+  c.fillStyle=p.body;
+  c.fillRect(1,1+by,11,10);c.fillRect(0,3+by,13,6);
+  c.fillRect(2,0+by,9,1);// top round
+  // Dark ears — floppy, hang down
+  c.fillStyle=p.dark;
+  c.fillRect(0,0+by,2,7);c.fillRect(11,0+by,2,7);
+  // White muzzle / snout area
+  c.fillStyle=p.white;
+  c.fillRect(1,7+by,7,4);c.fillRect(0,8+by,2,2);
+  // Nose
+  c.fillStyle=p.nose;px(c,1,7+by,2,2);
+  // Eyes
+  if(isPlay){
+    c.fillStyle='#ff5577';
+    px(c,3,3+by);px(c,5,3+by);px(c,4,4+by);// left heart
+    px(c,7,3+by);px(c,9,3+by);px(c,8,4+by);// right heart
+  } else {
+    c.fillStyle=p.white;c.fillRect(3,3+by,3,3);c.fillRect(7,3+by,3,3);
+    c.fillStyle=p.eye;
+    const lk=PUP.dir>0?1:0;
+    c.fillRect(3+lk,4+by,2,2);c.fillRect(7+lk,4+by,2,2);
+    c.fillStyle=p.white;px(c,3+lk,4+by);px(c,7+lk,4+by);// shine
+  }
   // Mouth
   if(isPlay){
-    // Big happy open mouth + tongue
-    c.fillStyle=bg;c.fillRect(3,11+hy,5,2);
-    c.fillStyle='#ff7b8e';c.fillRect(4,12+hy,3,2); // tongue hangs out
-    c.fillStyle='#e06070';px(c,5,13+hy,1,1); // tongue shadow
+    c.fillStyle=p.nose;px(c,2,10+by,4,1);// open
+    c.fillStyle=p.tongue;c.fillRect(3,11+by,2,2);// tongue out
   } else {
-    // Gentle smile
-    c.fillStyle=bg;px(c,4,11+hy,4,1);
-  }
-  // Eyes — big soulful circles
-  if(PUP.state==='pet'){
-    // Heart eyes
-    c.fillStyle='#ff5577';
-    px(c,3,3+hy);px(c,5,3+hy);px(c,4,4+hy);px(c,3,4+hy);px(c,5,4+hy);// left
-    px(c,8,3+hy);px(c,10,3+hy);px(c,9,4+hy);px(c,8,4+hy);px(c,10,4+hy);// right
-  } else {
-    // White of eyes
-    c.fillStyle=bg;
-    c.fillRect(3,3+hy,3,3);c.fillRect(8,3+hy,3,3);
-    // Big dark pupils
-    c.fillStyle=cl==='#ffffff'?'#333':'#0a0a0a';
-    const look=PUP.dir>0?1:0;
-    c.fillRect(3+look,4+hy,2,2);c.fillRect(8+look,4+hy,2,2);
-    // Eye shine
-    c.fillStyle=cl;px(c,3+look,4+hy);px(c,8+look,4+hy);
+    c.fillStyle=p.nose;px(c,3,10+by,3,1);// smile line
   }
 
-  // Eyebrows (if playing — raised)
-  if(isPlay){c.fillStyle=cl;px(c,3,2+hy,3,1);px(c,8,2+hy,3,1)}
+  // ══ BODY ══
+  c.fillStyle=p.body;c.fillRect(4,11+headDip,9,6);
+  c.fillStyle=p.white;c.fillRect(5,14+headDip,5,3);// white belly
+  c.fillStyle=p.bodyLt;c.fillRect(4,11+headDip,9,2);// lighter back
 
-  c.fillStyle=cl;
-  // ══ TINY BODY ══
-  c.fillRect(4,12+headDip,8,5);
-  c.fillRect(3,13+headDip,10,3);
+  // ══ TAIL ══
+  c.fillStyle=p.body;
+  const ts=isPlay?8:1.5;const tw=Math.sin(PUP.t*ts)*1.5;
+  const tl=isPlay?-2:0;
+  px(c,13,11+headDip+Math.round(tw)+tl,2,1);
+  px(c,14,10+headDip+Math.round(tw)+tl,2,1);
+  px(c,15,9+headDip+Math.round(tw*0.7)+tl,1,1);
 
-  // ══ TAIL — wagging fast when happy ══
-  const tailSpeed=isPlay?8:2;
-  const tw=Math.sin(PUP.t*tailSpeed)*1.5;
-  c.fillRect(13,12+headDip+Math.round(tw)+tailLift,2,1);
-  c.fillRect(14,11+headDip+Math.round(tw)+tailLift,2,1);
-  c.fillRect(15,10+headDip+Math.round(tw*0.8)+tailLift,1,1);
-
-  // ══ STUBBY LEGS ══
-  const legY=17+headDip;
+  // ══ LEGS ══
+  const ly=17+headDip;
+  c.fillStyle=p.body;
   if(PUP.state==='walk'){
     const s=f;
-    // Front
-    c.fillRect(5,legY,2,s<2?4:3);c.fillRect(7,legY,2,s<2?3:4);
-    // Back
-    c.fillRect(9,legY,2,s>=2?4:3);c.fillRect(11,legY,2,s>=2?3:4);
+    // Front pair
+    c.fillRect(5,ly,2,s<2?4:3);c.fillRect(7,ly,2,s<2?3:4);
+    // Back pair
+    c.fillRect(9,ly,2,s>=2?4:3);c.fillRect(11,ly,2,s>=2?3:4);
     // Paws
-    c.fillRect(4,legY+(s<2?3:2),3,1);c.fillRect(6,legY+(s<2?2:3),3,1);
-    c.fillRect(8,legY+(s>=2?3:2),3,1);c.fillRect(10,legY+(s>=2?2:3),3,1);
+    c.fillStyle=p.dark;
+    px(c,5,ly+(s<2?3:2),2,1);px(c,7,ly+(s<2?2:3),2,1);
+    px(c,9,ly+(s>=2?3:2),2,1);px(c,11,ly+(s>=2?2:3),2,1);
   } else if(isPlay){
-    // Play bow — front legs stretched forward, butt up
-    c.fillRect(4,legY,2,4);c.fillRect(6,legY,2,4);// front stretched
-    c.fillRect(9,legY-1,2,3);c.fillRect(11,legY-1,2,3);// back shorter (butt up)
-    c.fillRect(3,legY+3,3,1);c.fillRect(5,legY+3,3,1);// front paws
-    c.fillRect(8,legY+1,3,1);c.fillRect(10,legY+1,3,1);// back paws
+    // Play bow
+    c.fillRect(4,ly,2,4);c.fillRect(6,ly,2,4);
+    c.fillRect(9,ly-1,2,3);c.fillRect(11,ly-1,2,3);
+    c.fillStyle=p.dark;
+    px(c,4,ly+3,2,1);px(c,6,ly+3,2,1);px(c,9,ly+1,2,1);px(c,11,ly+1,2,1);
   } else {
     // Standing
-    c.fillRect(5,legY,2,3);c.fillRect(7,legY,2,3);c.fillRect(9,legY,2,3);c.fillRect(11,legY,2,3);
-    c.fillRect(4,legY+2,3,1);c.fillRect(6,legY+2,3,1);c.fillRect(8,legY+2,3,1);c.fillRect(10,legY+2,3,1);
+    c.fillRect(5,ly,2,3);c.fillRect(7,ly,2,3);c.fillRect(9,ly,2,3);c.fillRect(11,ly,2,3);
+    c.fillStyle=p.dark;
+    px(c,5,ly+2,2,1);px(c,7,ly+2,2,1);px(c,9,ly+2,2,1);px(c,11,ly+2,2,1);
   }
 }
 
@@ -986,7 +974,7 @@ function puppyLoop(){
     }
     // Face direction of horizontal movement
     if(Math.abs(dx)>1)PUP.dir=dx>0?1:-1;
-    if(now-PUP.stateTimer>PUP.SLEEP_AFTER)goToSleep();
+    if(now-PUP.stateTimer>PUP.SLEEP_AFTER)sendToSleep();
   } else if(PUP.state==='sit'){
     PUP.frame+=0.01;
     if(now-PUP.stateTimer>3000){
@@ -1004,6 +992,8 @@ function puppyLoop(){
   requestAnimationFrame(puppyLoop);
 }
 
+let sleepTimeout=null;
+
 function goToSleep(){
   PUP.state='sleep';PUP.awake=false;
   document.getElementById('dhZzz').style.display='';
@@ -1012,8 +1002,18 @@ function goToSleep(){
   const dhR=dh.getBoundingClientRect();const aR=app.getBoundingClientRect();
   PUP.x=dhR.left-aR.left+20;PUP.y=dhR.top+window.scrollY;
 }
+
+function sendToSleep(){
+  if(!PUP.awake)return; // already sleeping
+  goToSleep();
+  // Auto wake after 1 minute
+  if(sleepTimeout)clearTimeout(sleepTimeout);
+  sleepTimeout=setTimeout(wakePuppy,60000);
+}
+
 function wakePuppy(){
   if(PUP.awake)return;
+  if(sleepTimeout){clearTimeout(sleepTimeout);sleepTimeout=null}
   PUP.awake=true;PUP.state='walk';PUP.stateTimer=Date.now();
   document.getElementById('dhZzz').style.display='none';
   posPup();
