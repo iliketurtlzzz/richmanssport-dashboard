@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Center</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#000;--bg1:#0a0a0a;--bg2:#141414;--bg3:#1e1e1e;--brd:rgba(255,255,255,.08);--brd2:rgba(255,255,255,.14);--t0:#fff;--t1:#b0b0b0;--t2:#707070;--t3:#444;--accent:#7eb8e0;--accentDim:rgba(126,184,224,.12);--green:#34d399;--red:#f87171;--blue:#60a5fa;--radius:14px;--shadow:0 2px 4px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.15);--shadowLift:0 24px 48px rgba(0,0,0,.5);--shadow3d:0 1px 1px rgba(255,255,255,.04) inset,0 2px 6px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.2);--btnShadow:0 1px 2px rgba(0,0,0,.3),0 4px 8px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.06) inset}
+[data-theme="day"]{--bg0:#f8f7f5;--bg1:#fdfcfa;--bg2:#fff;--bg3:#f0eeea;--brd:rgba(0,0,0,.06);--brd2:rgba(0,0,0,.12);--t0:#111;--t1:#555;--t2:#999;--t3:#ccc;--accent:#5a9cc5;--accentDim:rgba(90,156,197,.1);--green:#16a34a;--red:#dc2626;--blue:#2563eb;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);--shadowLift:0 24px 48px rgba(0,0,0,.1);--shadow3d:0 1px 1px rgba(255,255,255,.8) inset,0 2px 6px rgba(0,0,0,.06),0 8px 20px rgba(0,0,0,.04);--btnShadow:0 1px 2px rgba(0,0,0,.08),0 3px 6px rgba(0,0,0,.04),0 1px 0 rgba(255,255,255,.9) inset}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:var(--t0);-webkit-font-smoothing:antialiased}
+.app{max-width:1480px;margin:0 auto;padding:0 24px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--brd);margin-bottom:20px}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.burger{width:32px;height:32px;border:none;border-radius:8px;background:var(--bg2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;transition:background .2s}
+.burger:hover{background:var(--bg3)}
+.burger span{display:block;width:100%;height:1.5px;background:var(--t2);border-radius:1px}
+.logo-img{height:28px;border-radius:4px}
+.brand{font-size:15px;font-weight:700;letter-spacing:.5px}
+.brand-sub{font-size:9px;letter-spacing:2px;color:var(--t3);text-transform:uppercase;font-weight:500}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.prof-sw{position:relative}
+.prof-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--brd);border-radius:8px;background:transparent;color:var(--t0);font:600 11px/1 'Inter',sans-serif;cursor:pointer;transition:all .2s}
+.prof-btn:hover{border-color:var(--brd2)}
+.prof-btn .arrow{font-size:8px;color:var(--t3)}
+.prof-dd{position:absolute;top:calc(100% + 4px);right:0;min-width:220px;background:var(--bg1);border:1px solid var(--brd);border-radius:12px;padding:4px;z-index:60;display:none;box-shadow:var(--shadowLift)}
+.prof-dd.show{display:block}
+.pf-opt{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;transition:all .12s}
+.pf-opt:hover{background:var(--bg3)}
+.pf-opt.active{background:var(--accentDim)}
+.pf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pf-name{font-size:12px;font-weight:600}.pf-sub{font-size:9px;color:var(--t3)}
+.hdr-pill{padding:5px 10px;border:1px solid var(--brd);border-radius:7px;background:var(--bg2);color:var(--t2);font:600 10px/1 'Inter',sans-serif;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.3px;box-shadow:var(--btnShadow)}
+.hdr-pill:hover{border-color:var(--brd2);color:var(--t0);transform:translateY(-1px)}
+.hdr-pill:active{transform:translateY(0);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+/* Atlanta Clock */
+.atl-clock{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;box-shadow:var(--btnShadow)}
+.atl-time{font:700 13px 'JetBrains Mono',mono;color:var(--t0);letter-spacing:.5px}
+.atl-sec{font:400 10px 'JetBrains Mono',mono;color:var(--accent);min-width:16px}
+.atl-label{font:600 7px 'Inter';text-transform:uppercase;letter-spacing:1.5px;color:var(--t3)}
+/* Events module */
+.ev-countdown{display:flex;align-items:center;gap:16px;padding:14px 16px;background:var(--bg0);border:1px solid var(--brd);border-radius:10px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.15) inset}
+.ev-cd-num{font:800 28px 'JetBrains Mono',mono;color:var(--accent);line-height:1}
+.ev-cd-label{font:700 8px 'Inter';text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-top:1px}
+.ev-cd-unit{text-align:center}
+.ev-cd-sep{font:300 24px 'JetBrains Mono',mono;color:var(--t3)}
+.ev-next-name{font:700 13px 'Inter';color:var(--t0);margin-bottom:2px}
+.ev-next-info{font:400 10px 'Inter';color:var(--t2)}
+.ev-cal{display:grid;gap:0;border:1px solid var(--brd);border-radius:8px;overflow:hidden;margin-top:4px}
+.ev-cal-row{display:grid;grid-template-columns:1fr 2fr .8fr;font-size:10px;border-bottom:1px solid var(--brd)}
+.ev-cal-row:last-child{border-bottom:none}
+.ev-cal-row.head{font:700 8px 'Inter';text-transform:uppercase;letter-spacing:1px;color:var(--t3);background:var(--bg3)}
+.ev-cal-row .c{padding:7px 10px}
+.ev-cal-row.next{background:var(--accentDim)}
+.ev-tour-badge{display:inline-block;padding:1px 5px;border-radius:3px;font:700 7px 'Inter';text-transform:uppercase;letter-spacing:.3px}
+.ev-tour-badge.pga{background:rgba(0,75,141,.15);color:#4da3ff}
+.ev-tour-badge.liv{background:rgba(255,0,0,.1);color:#ff6b6b}
+.ev-tour-badge.major{background:var(--accentDim);color:var(--accent)}
+.live{display:flex;align-items:center;gap:5px;font:500 9px 'JetBrains Mono',mono;color:var(--t3)}
+.ldot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Sidebar */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.open{opacity:1;pointer-events:all}
+.sb{position:fixed;top:0;left:-300px;width:300px;height:100vh;background:var(--bg1);border-right:1px solid var(--brd);z-index:300;transition:left .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
+.sb.open{left:0}
+.sb-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 16px;border-bottom:1px solid var(--brd)}
+.sb-t{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px}
+.sb-x{width:26px;height:26px;border:1px solid var(--brd);border-radius:6px;background:transparent;color:var(--t2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sb-x:hover{border-color:var(--accent);color:var(--accent)}
+.sb-sec{padding:10px 10px 0}
+.sb-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--t3);padding:8px 8px 4px}
+.sb-lnk{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s}
+.sb-lnk:hover{background:var(--bg3);color:var(--t0)}
+.sb-lnk.act{background:var(--accentDim);color:var(--accent)}
+.sb-lnk .ic{width:24px;height:24px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px}
+.sb-badge{margin-left:auto;font:700 9px 'JetBrains Mono',mono;color:var(--accent);background:var(--accentDim);padding:1px 6px;border-radius:6px}
+.th-row{display:flex;gap:6px;padding:6px 10px 12px}
+.th-btn{flex:1;padding:8px;border-radius:8px;border:2px solid var(--brd);background:transparent;cursor:pointer;text-align:center;font:700 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;color:var(--t2);transition:all .2s}
+.th-btn:hover{border-color:var(--t3)}
+.th-btn.act{border-color:var(--accent);color:var(--accent)}
+
+/* Goals */
+.goals{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.goal{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:20px 24px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow3d)}
+.arc-g{position:relative;width:96px;height:96px;flex-shrink:0}
+.arc-g svg{width:100%;height:100%;transform:rotate(-90deg)}
+.arc-tk{fill:none;stroke:var(--bg0);stroke-width:7}
+.arc-fl{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+.arc-ct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.arc-pct{font:800 20px 'JetBrains Mono',mono;color:var(--t0)}
+.arc-lab{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-top:-1px}
+.g-info{flex:1;min-width:0}
+.g-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:4px}
+.g-nums{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.g-cur{font:800 22px 'JetBrains Mono',mono;color:var(--t0)}
+.g-tar{font:500 12px 'JetBrains Mono',mono;color:var(--t3);cursor:pointer;border-bottom:1px dashed transparent;transition:border-color .2s}
+.g-tar:hover{border-color:var(--t3)}
+.g-tar input{font:600 12px 'JetBrains Mono',mono;color:var(--t0);background:transparent;border:none;border-bottom:1px solid var(--accent);outline:none;width:90px}
+.g-rem{font-size:9px;color:var(--t3);margin-top:3px}
+.g-edit{display:flex;align-items:center;gap:6px;margin-top:8px}
+.g-input{width:110px;padding:6px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:600 12px 'JetBrains Mono',mono;outline:none}
+.g-input:focus{border-color:var(--accent)}
+.g-save{padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow);transition:all .15s}
+.g-save:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.3),0 6px 12px rgba(0,0,0,.2)}
+.g-save:active{transform:translateY(0);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+
+/* Dashboard Grid */
+.dash{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-flow:dense;gap:14px;margin-bottom:24px}
+/* Module */
+.mod{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:16px 18px;position:relative;box-shadow:var(--shadow3d);transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s,border-color .2s,opacity .2s}
+.mod:hover{border-color:var(--brd2);box-shadow:var(--shadow3d),0 0 0 1px var(--brd2)}
+.mod.sm{grid-column:span 1}.mod.md{grid-column:span 2}.mod.lg{grid-column:span 3}.mod.xl{grid-column:span 4}
+.mod.dragging{position:fixed;z-index:9999;pointer-events:none;box-shadow:var(--shadowLift);border-color:var(--accent);opacity:.9;transform:scale(1.01);transition:none}
+.mod.ghost{opacity:.1;border:2px dashed var(--accent);background:transparent;box-shadow:none}.mod.ghost *{visibility:hidden}
+.mod.snap{border-color:var(--accent);box-shadow:0 0 0 2px var(--accentDim)}
+/* Module header — draggable */
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:grab;touch-action:none;user-select:none;padding:2px 0;border-radius:6px}
+.mh:active{cursor:grabbing}
+.mh-left{display:flex;align-items:center;gap:6px}
+.mh-icon{font-size:11px}
+.mh-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3)}
+.mh-right{display:flex;align-items:center;gap:2px;opacity:0;transition:opacity .15s}
+.mod:hover .mh-right{opacity:1}
+.mh-btn{width:24px;height:24px;border:1px solid var(--brd);border-radius:6px;background:var(--bg2);color:var(--t3);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;box-shadow:0 1px 3px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.04) inset}
+.mh-btn:hover{background:var(--bg3);color:var(--t0);transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.mh-btn:active{transform:translateY(0);box-shadow:0 1px 1px rgba(0,0,0,.1)}
+.mh-btn.grip{cursor:grab;font-size:13px}.mh-btn.grip:active{cursor:grabbing}
+.mh-btn.grip:hover{color:var(--accent);background:var(--accentDim)}
+/* Size picker */
+.sp{position:absolute;top:36px;right:14px;background:var(--bg1);border:1px solid var(--brd);border-radius:10px;padding:4px;z-index:50;display:none;box-shadow:var(--shadowLift)}
+.sp.show{display:block}
+.sp-o{padding:7px 12px;border-radius:6px;font:500 11px 'Inter';color:var(--t2);cursor:pointer;transition:all .12s;white-space:nowrap}
+.sp-o:hover{background:var(--bg3);color:var(--t0)}
+.sp-o.act{color:var(--accent)}
+
+/* Module content */
+.bn{font:800 28px 'JetBrains Mono',mono;color:var(--t0);line-height:1.1}.bn.m{font-size:20px}
+.sc{font:600 10px 'JetBrains Mono',mono;margin-top:2px}.sc.up{color:var(--green)}.sc.dn{color:var(--red)}
+.ss{font-size:11px;color:var(--t2);margin-top:1px}
+.mg{display:grid;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--brd)}
+.mg.c2{grid-template-columns:1fr 1fr}.mg.c3{grid-template-columns:1fr 1fr 1fr}
+.mv{font:700 14px 'JetBrains Mono',mono;color:var(--t0)}.ml{font-size:8px;color:var(--t3);margin-top:1px;text-transform:uppercase;letter-spacing:.5px}
+.lr{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--brd);font-size:11px}.lr:last-child{border-bottom:none}
+.ll{display:flex;align-items:center;gap:8px}
+.li{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--bg3);flex-shrink:0}
+.lp{font-weight:600;font-size:11px}.ls{font-size:9px;color:var(--t3)}
+.lv{font:700 12px 'JetBrains Mono',mono}
+.badge{display:inline-block;padding:2px 6px;border-radius:4px;font:700 8px 'JetBrains Mono',mono;text-transform:uppercase;letter-spacing:.3px}
+.badge.g{background:rgba(52,211,153,.1);color:var(--green)}.badge.y{background:rgba(251,191,36,.1);color:#f59e0b}.badge.r{background:rgba(248,113,113,.1);color:var(--red)}.badge.b{background:rgba(96,165,250,.1);color:var(--blue)}
+.cw{position:relative;height:180px;margin-top:6px}
+.sb-grid{display:grid;gap:8px}.sb-grid.c2{grid-template-columns:1fr 1fr}
+.sbx{padding:12px;border-radius:10px;background:var(--bg0);border:1px solid var(--brd)}
+.sbv{font:700 16px 'JetBrains Mono',mono;color:var(--t0)}.sbl{font-size:8px;color:var(--t3);margin-top:1px;text-transform:uppercase;letter-spacing:.5px}.sbc{font:500 9px 'JetBrains Mono',mono;margin-top:2px}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--brd)}.sr:last-child{border-bottom:none}
+.si{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.si.ig{background:linear-gradient(135deg,#833AB4,#FD1D1D,#F77737)}.si.tt{background:#000;border:1px solid #25F4EE}
+.fn{font:700 16px 'JetBrains Mono',mono}
+.og{display:grid;grid-template-columns:1fr 1.2fr .8fr .8fr;font-size:10px}
+.ogh{font:700 8px 'Inter';text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding-bottom:6px;border-bottom:1px solid var(--brd)}
+.ogc{padding:6px 0;border-bottom:1px solid var(--brd)}
+.tbar{height:6px;border-radius:3px;background:var(--bg0);overflow:hidden;margin:8px 0 10px;display:flex}
+.tbar span{height:100%}
+.tleg{display:flex;flex-wrap:wrap;gap:8px}
+.tl{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--t2)}
+.tl span{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.ev{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--brd)}.ev:last-child{border-bottom:none}
+.evd{min-width:36px;padding:4px;border-radius:6px;background:var(--accentDim);text-align:center}
+.evm{font:700 7px 'Inter';text-transform:uppercase;letter-spacing:1px;color:var(--accent)}
+.evdy{font:700 14px 'JetBrains Mono',mono}
+.evt{font-size:11px;font-weight:600}.evds{font-size:9px;color:var(--t3);margin-top:1px}
+.evtag{display:inline-block;padding:1px 5px;border-radius:3px;font:700 7px 'Inter';text-transform:uppercase;letter-spacing:.3px;margin-top:2px;background:var(--accentDim);color:var(--accent)}
+
+/* Posts Feed */
+.posts-sec{margin-bottom:28px}
+.posts-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--brd)}
+.posts-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.posts-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3)}
+.posts-handle{font:500 9px 'JetBrains Mono',mono;color:var(--t2);margin-left:auto}
+.posts-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.post{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);overflow:hidden;cursor:pointer;box-shadow:var(--shadow3d);transition:all .25s}
+.post:hover{border-color:var(--brd2);transform:translateY(-4px);box-shadow:var(--shadowLift)}
+.post-img{width:100%;aspect-ratio:4/5;background:var(--bg3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.post-img img{width:100%;height:100%;object-fit:cover}
+.post-img .ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;height:100%}
+.ph-i{font-size:28px;opacity:.3}.ph-t{font:700 7px 'Inter';text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+.post-badge{position:absolute;top:6px;right:6px;padding:2px 5px;border-radius:4px;font:700 7px 'Inter';text-transform:uppercase;letter-spacing:.3px;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);color:#fff}
+.post-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.2);opacity:0;transition:opacity .2s}
+.post:hover .post-play{opacity:1}
+.play-c{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center}
+.play-c svg{margin-left:2px}
+.post-info{padding:8px 10px}
+.post-cap{font-size:9px;color:var(--t2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px}
+.post-met{display:flex;gap:8px;font:500 8px 'JetBrains Mono',mono;color:var(--t3)}
+.post-date{font:400 7px 'JetBrains Mono',mono;color:var(--t3);margin-top:3px}
+
+/* Panels */
+.panel{display:none;position:fixed;inset:0;background:var(--bg0);z-index:150;overflow-y:auto}
+.panel.vis{display:block}
+.panel-hdr{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--brd);background:var(--bg1);position:sticky;top:0;z-index:10}
+.panel-back{width:30px;height:30px;border:1px solid var(--brd);border-radius:8px;background:transparent;color:var(--t2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.panel-back:hover{border-color:var(--accent);color:var(--accent)}
+.panel-t{font-size:16px;font-weight:700}.panel-st{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:2px}
+.conn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:20px 24px;max-width:1200px;margin:0 auto}
+.conn{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.conn::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.conn.shopify::before{background:linear-gradient(90deg,#96BF48,#5E8E3E)}.conn.instagram::before{background:linear-gradient(90deg,#833AB4,#FD1D1D,#F77737)}.conn.tiktok::before{background:linear-gradient(90deg,#25F4EE,#FE2C55)}.conn.ga4::before{background:linear-gradient(90deg,#F9AB00,#E37400)}
+.conn-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.conn-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.conn-ic.shopify{background:linear-gradient(135deg,#96BF48,#5E8E3E)}.conn-ic.instagram{background:linear-gradient(135deg,#833AB4,#FD1D1D,#F77737)}.conn-ic.tiktok{background:#000;border:1px solid #25F4EE}.conn-ic.ga4{background:linear-gradient(135deg,#F9AB00,#E37400)}
+.conn-n{font-size:14px;font-weight:700}.conn-d{font-size:9px;color:var(--t3);margin-top:1px}
+.conn-st{display:flex;align-items:center;gap:4px;font:600 9px 'Inter';padding:6px 0;border-top:1px solid var(--brd)}
+.conn-st .dot{width:5px;height:5px;border-radius:50%}
+.conn-st.on .dot{background:var(--green)}.conn-st.on{color:var(--green)}
+.conn-st.off .dot{background:var(--t3)}.conn-st.off{color:var(--t3)}
+.conn-feat{margin:8px 0 12px;list-style:none}.conn-feat li{font-size:9px;color:var(--t2);padding:2px 0;display:flex;align-items:center;gap:4px}.conn-feat li::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.conn-btn{width:100%;padding:10px;border-radius:8px;font:700 11px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:none;transition:all .15s;box-shadow:var(--btnShadow)}
+.conn-btn.connect{background:var(--accent);color:#000}.conn-btn.connect:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.3),0 8px 16px rgba(0,0,0,.2)}
+.conn-btn:active{transform:translateY(0)}
+.conn-note{font-size:8px;color:var(--t3);margin-top:6px;text-align:center}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:20px 24px;max-width:1400px;margin:0 auto}
+.lib-mod{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .15s;position:relative;box-shadow:var(--shadow)}
+.lib-mod:hover{border-color:var(--accent)}
+.lib-mod.on{border-color:var(--green)}
+.lib-mod.on::after{content:'✓';position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--green);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.lib-mod-i{font-size:20px;margin-bottom:6px}
+.lib-mod-n{font-size:12px;font-weight:700;margin-bottom:2px}
+.lib-mod-d{font-size:9px;color:var(--t3);line-height:1.3}
+.lib-mod-s{display:inline-block;margin-top:4px;padding:1px 6px;border-radius:3px;font:700 7px 'Inter';text-transform:uppercase;letter-spacing:.3px;background:var(--bg3);color:var(--t2)}
+
+/* ═══ 8-BIT PITBULL PUPPY ═══ */
+#puppy{position:absolute;z-index:999;width:48px;height:48px;image-rendering:pixelated;cursor:pointer;pointer-events:auto}
+#puppy:hover{filter:brightness(1.2)}
+#puppy canvas{width:48px;height:48px;image-rendering:pixelated}
+/* 8-bit doghouse — centered banner */
+.doghouse-wrap{display:flex;align-items:center;justify-content:center;gap:0;padding:8px 0 4px;border-bottom:1px solid var(--brd);margin-bottom:16px}
+.doghouse{display:flex;align-items:flex-end;gap:0;cursor:pointer;position:relative;image-rendering:pixelated}
+.doghouse:hover .dh-house{filter:brightness(1.15)}
+.dh-house{position:relative}
+.dh-house canvas{width:80px;height:52px;image-rendering:pixelated}
+.dh-zzz{position:absolute;top:-14px;right:8px;display:flex;gap:3px;pointer-events:none}
+.dh-zzz span{font:700 'JetBrains Mono',mono;color:var(--accent);animation:zzz 1.5s infinite}
+.dh-zzz span:nth-child(2){font-size:11px;animation-delay:.3s}
+.dh-zzz span:nth-child(3){font-size:14px;animation-delay:.6s}
+.dh-sign{display:flex;flex-direction:column;align-items:center;margin-left:4px;margin-bottom:4px}
+.dh-sign canvas{width:36px;height:44px;image-rendering:pixelated}
+@keyframes zzz{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+.puppy-reaction{position:fixed;z-index:1000;font-size:16px;pointer-events:none;animation:floatUp 1s forwards}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:2px}
+@media(max-width:1200px){.dash{grid-template-columns:repeat(2,1fr)}.mod.lg,.mod.xl{grid-column:span 2}.goals{grid-template-columns:1fr}.posts-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.dash{grid-template-columns:1fr}.mod.sm,.mod.md,.mod.lg,.mod.xl{grid-column:span 1}.app{padding:0 12px}.posts-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="hdr">
+  <div class="hdr-l">
+    <button class="burger" onclick="toggleSB()"><span></span><span></span><span></span></button>
+    <img class="logo-img" id="hLogo" src="" alt="" onerror="this.style.display='none'">
+    <div><div class="brand" id="hBrand"></div><div class="brand-sub">Command Center</div></div>
+  </div>
+  <div class="hdr-r">
+    <div class="prof-sw">
+      <button class="prof-btn" id="profBtn" onclick="togglePD()"><span id="profBtnN"></span><span class="arrow">▾</span></button>
+      <div class="prof-dd" id="profDD"></div>
+    </div>
+    <button class="hdr-pill" onclick="nav('modules')">Modules</button>
+    <div class="atl-clock">
+      <div><div style="display:flex;align-items:baseline;gap:2px"><span class="atl-time" id="atlTime">--:--</span><span class="atl-sec" id="atlSec"></span></div><div class="atl-label">Atlanta, GA</div></div>
+    </div>
+    <div class="live"><span class="ldot"></span>LIVE</div>
+    <span id="dateD" style="font:400 9px 'JetBrains Mono',mono;color:var(--t3)"></span>
+  </div>
+</header>
+
+<div class="ov" id="ov" onclick="toggleSB()"></div>
+<nav class="sb" id="sb">
+  <div class="sb-hdr"><div class="sb-t">Menu</div><button class="sb-x" onclick="toggleSB()">×</button></div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Navigation</div>
+    <div class="sb-lnk act" onclick="nav('dash')"><div class="ic">📊</div>Dashboard</div>
+    <div class="sb-lnk" onclick="nav('conn')"><div class="ic">🔌</div>Connectors<span class="sb-badge">4</span></div>
+    <div class="sb-lnk" onclick="nav('modules')"><div class="ic">🧩</div>Module Library<span class="sb-badge" id="mcBadge">9</span></div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Appearance</div>
+    <div class="th-row">
+      <button class="th-btn act" id="thN" onclick="setTheme('night')">Night</button>
+      <button class="th-btn" id="thD" onclick="setTheme('day')">Day</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Connectors -->
+<div class="panel" id="pConn">
+  <div class="panel-hdr"><button class="panel-back" onclick="nav('dash')">←</button><div><div class="panel-t">Connectors</div><div class="panel-st">Login to your accounts</div></div></div>
+  <div class="conn-grid">
+    <div class="conn shopify"><div class="conn-top"><div class="conn-ic shopify"><svg width="18" height="20" viewBox="0 0 24 28" fill="#fff"><path d="M20.5 5.4c0-.1-.1-.2-.2-.2s-1.4-.1-1.4-.1-1.2-1.2-1.3-1.3c-.1-.1-.3-.1-.4-.1l-.6.2C16.3 3 16 2.4 15.3 2.4h-.1c-.3-.4-.7-.6-1-.6-2.5 0-3.7 3.1-4.1 4.7l-1.7.5c-.5.2-.5.2-.6.7L6.7 17l10.2 1.8 5.5-1.2S20.5 5.5 20.5 5.4z"/></svg></div><div><div class="conn-n">Shopify</div><div class="conn-d">richmanssport.myshopify.com</div></div></div><div class="conn-st off"><span class="dot"></span>Not Connected</div><ul class="conn-feat"><li>Revenue, orders & AOV</li><li>Inventory & products</li><li>Customer data</li></ul><button class="conn-btn connect" onclick="oAuth(this,'Shopify')">Login with Shopify</button><div class="conn-note">OAuth — redirects to Shopify</div></div>
+    <div class="conn instagram"><div class="conn-top"><div class="conn-ic instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div><div><div class="conn-n">Instagram</div><div class="conn-d" id="connIG">@richmanssport</div></div></div><div class="conn-st off"><span class="dot"></span>Not Connected</div><ul class="conn-feat"><li>Followers & growth</li><li>Post engagement</li><li>Stories & reels</li></ul><button class="conn-btn connect" onclick="oAuth(this,'Instagram')">Login with Instagram</button><div class="conn-note">Via Meta Business Suite</div></div>
+    <div class="conn tiktok"><div class="conn-top"><div class="conn-ic tiktok"><svg width="14" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-.81.05l-.38-.25z"/></svg></div><div><div class="conn-n">TikTok</div><div class="conn-d" id="connTT">@richmanssport</div></div></div><div class="conn-st off"><span class="dot"></span>Not Connected</div><ul class="conn-feat"><li>Followers & growth</li><li>Video views & likes</li><li>Top content</li></ul><button class="conn-btn connect" onclick="oAuth(this,'TikTok')">Login with TikTok</button><div class="conn-note">TikTok OAuth</div></div>
+    <div class="conn ga4"><div class="conn-top"><div class="conn-ic ga4"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M22.84 3v18c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h2c.55 0 1 .45 1 1zm-6.5 6v12c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1h2c.55 0 1 .45 1 1zm-6.5 5v7c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-7c0-.55.45-1 1-1h2c.55 0 1 .45 1 1zm-6.5 3v4c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h2c.55 0 1 .45 1 1z"/></svg></div><div><div class="conn-n">Google Analytics 4</div><div class="conn-d">richmanssport.com</div></div></div><div class="conn-st off"><span class="dot"></span>Not Connected</div><ul class="conn-feat"><li>Traffic & sessions</li><li>Sources — organic, paid, social, LLM</li><li>Top pages</li></ul><button class="conn-btn connect" onclick="oAuth(this,'Google Analytics')">Login with Google</button><div class="conn-note">Read-only access to GA4</div></div>
+  </div>
+</div>
+
+<!-- Module Library -->
+<div class="panel" id="pMods"><div class="panel-hdr"><button class="panel-back" onclick="nav('dash')">←</button><div><div class="panel-t">Module Library</div><div class="panel-st">Click to add or remove</div></div></div><div class="lib-grid" id="libGrid"></div></div>
+
+<!-- Buddy's House -->
+<div class="doghouse-wrap" id="doghouseWrap">
+  <div class="doghouse" id="doghouse" onclick="wakePuppy()" title="Click to wake Buddy">
+    <div class="dh-house"><canvas id="dhCanvas" width="40" height="26"></canvas>
+      <div class="dh-zzz" id="dhZzz" style="display:none"><span style="font-size:9px">z</span><span>z</span><span>Z</span></div>
+    </div>
+    <div class="dh-sign"><canvas id="dhSign" width="18" height="22"></canvas></div>
+  </div>
+</div>
+
+<!-- SVG Gradients -->
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gG" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#9a7b3c"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#e8d48b"/></linearGradient><linearGradient id="gGr" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#059669"/><stop offset="50%" stop-color="#34d399"/><stop offset="100%" stop-color="#6ee7b7"/></linearGradient></defs></svg>
+
+<!-- Goals -->
+<div class="goals" id="goalsBar">
+  <div class="goal">
+    <div class="arc-g"><svg viewBox="0 0 120 120"><circle class="arc-tk" cx="60" cy="60" r="50"/><circle class="arc-fl" cx="60" cy="60" r="50" id="aIG" stroke="url(#gGr)" stroke-dasharray="314.16" stroke-dashoffset="314.16"/></svg><div class="arc-ct"><div class="arc-pct" id="aIGP">0%</div><div class="arc-lab">of goal</div></div></div>
+    <div class="g-info">
+      <div class="g-label" id="igGL">Instagram Follower Goal</div>
+      <div class="g-nums"><div class="g-cur" id="igCD"></div><div class="g-tar" id="igTD"></div></div>
+      <div class="g-rem" id="igRem"></div>
+      <div class="g-edit">
+        <input class="g-input" id="igIn" placeholder="Current">
+        <input class="g-input" id="igGoalIn" placeholder="Goal" style="width:90px">
+        <button class="g-save" onclick="updateG('ig')">Save</button>
+      </div>
+    </div>
+  </div>
+  <div class="goal">
+    <div class="arc-g"><svg viewBox="0 0 120 120"><circle class="arc-tk" cx="60" cy="60" r="50"/><circle class="arc-fl" cx="60" cy="60" r="50" id="aRev" stroke="url(#gGr)" stroke-dasharray="314.16" stroke-dashoffset="314.16"/></svg><div class="arc-ct"><div class="arc-pct" id="aRevP">0%</div><div class="arc-lab">of goal</div></div></div>
+    <div class="g-info">
+      <div class="g-label" id="revGL">2026 Revenue Goal</div>
+      <div class="g-nums"><div class="g-cur" id="revCD"></div><div class="g-tar" id="revTD"></div></div>
+      <div class="g-rem" id="revRem"></div>
+      <div class="g-edit">
+        <input class="g-input" id="revIn" placeholder="Current">
+        <input class="g-input" id="revGoalIn" placeholder="Goal" style="width:90px">
+        <button class="g-save" onclick="updateG('rev')">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<main class="dash" id="dash"></main>
+
+<!-- Posts Feed -->
+<section class="posts-sec" id="postsSec">
+  <div style="margin-bottom:20px">
+    <div class="posts-hdr"><div class="posts-icon" style="background:linear-gradient(135deg,#833AB4,#FD1D1D,#F77737)"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div><div class="posts-name">Recent Instagram</div><div class="posts-handle" id="igHD"></div></div>
+    <div class="posts-grid" id="igPG"></div>
+  </div>
+  <div>
+    <div class="posts-hdr"><div class="posts-icon" style="background:#000;border:1px solid #25F4EE"><svg width="10" height="12" viewBox="0 0 24 24" fill="#25F4EE"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-.81.05l-.38-.25z"/></svg></div><div class="posts-name">Recent TikTok</div><div class="posts-handle" id="ttHD"></div></div>
+    <div class="posts-grid" id="ttPG"></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+const CIRC=314.16;
+const MODS=[
+  {id:'social-followers',n:'Social Followers',i:'👥',d:'Follower counts',s:'IG · TT',sz:'sm',on:1,cat:'Social'},
+  {id:'ig-growth',n:'IG Growth',i:'📈',d:'6-month bar chart',s:'Instagram',sz:'md',on:1,cat:'Social'},
+  {id:'ig-engagement',n:'IG Engagement',i:'❤️',d:'Likes, comments, saves',s:'Instagram',sz:'md',on:1,cat:'Social'},
+  {id:'ig-top-posts',n:'IG Top Posts',i:'🏆',d:'Best performing posts',s:'Instagram',sz:'md',on:0,cat:'Social'},
+  {id:'ig-stories',n:'IG Stories',i:'📱',d:'Views, exits, replies',s:'Instagram',sz:'sm',on:0,cat:'Social'},
+  {id:'ig-reels',n:'IG Reels',i:'🎬',d:'Views, shares, watch-through',s:'Instagram',sz:'sm',on:0,cat:'Social'},
+  {id:'tt-performance',n:'TikTok Stats',i:'🎵',d:'Views, likes, shares',s:'TikTok',sz:'sm',on:0,cat:'Social'},
+  {id:'social-reach',n:'Social Reach',i:'📡',d:'Total reach',s:'IG · TT',sz:'sm',on:0,cat:'Social'},
+  {id:'monthly-revenue',n:'Monthly Revenue',i:'💰',d:'Shopify revenue',s:'Shopify',sz:'md',on:1,cat:'Revenue'},
+  {id:'revenue-chart',n:'Revenue Trend',i:'📊',d:'6-month line chart',s:'Shopify',sz:'md',on:0,cat:'Revenue'},
+  {id:'daily-sales',n:'Daily Sales',i:'📅',d:"Today vs yesterday",s:'Shopify',sz:'sm',on:0,cat:'Revenue'},
+  {id:'recent-orders',n:'Recent Orders',i:'🛒',d:'Latest orders',s:'Shopify',sz:'md',on:1,cat:'Orders'},
+  {id:'quick-stats',n:'Quick Stats',i:'⚡',d:'Key metrics',s:'Shopify',sz:'sm',on:1,cat:'Orders'},
+  {id:'inventory',n:'Inventory',i:'📦',d:'Stock levels',s:'Shopify',sz:'md',on:1,cat:'Products'},
+  {id:'website-analytics',n:'Website Analytics',i:'🌐',d:'Visitors, bounce, session',s:'Shopify',sz:'md',on:1,cat:'Website'},
+  {id:'ga4-traffic',n:'GA4 Traffic',i:'📊',d:'Sessions & sources',s:'GA4',sz:'md',on:1,cat:'Website'},
+  {id:'email-stats',n:'Email Marketing',i:'📧',d:'Subscribers & rates',s:'Shopify',sz:'sm',on:0,cat:'Marketing'},
+  {id:'upcoming-events',n:'Events',i:'📅',d:'Launches & promos',s:'Manual',sz:'md',on:1,cat:'Planning'},
+  {id:'golf-calendar',n:'Golf Tournaments',i:'⛳',d:'PGA & LIV schedule with countdown',s:'Built-in',sz:'md',on:1,cat:'Planning'},
+];
+
+const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT',short:'Richmans Sport',color:'#7eb8e0',logo:'https://richmanssport.com/cdn/shop/files/Artboard_6_copy_3.png?v=1720464043',ig:'@richmanssport',tt:'@richmanssport',web:'richmanssport.com',igGoal:25000,igCur:12847,revGoal:250000,revCur:250000,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[
+  {i:'🏌️',t:'Reel',cap:'The truth behind the Richmans Sport name...',lk:'1.2K',cm:'84',sh:'210',dt:'2024',url:'https://www.instagram.com/richmanssport/reel/C4BPd-Yrg5V/',bg:'linear-gradient(135deg,#1a3322,#0d1f1a)'},
+  {i:'⛳',t:'Reel',cap:'Beautiful Game ⛳️ #golf #golflife #art #GolfArt',lk:'980',cm:'62',sh:'180',dt:'2024',url:'https://www.instagram.com/richmanssport/reel/C7sbsvqtPve/',bg:'linear-gradient(135deg,#1a2a10,#2a1a0a)'},
+  {i:'🧢',t:'Reel',cap:"The 'Golf' hat is here. Get yours! #teetimesecured",lk:'1.5K',cm:'96',sh:'320',dt:'2024',url:'https://www.instagram.com/richmanssport/reel/DAgoqYLP5OQ/',bg:'linear-gradient(135deg,#2a1a2a,#1a1a2a)'},
+  {i:'🎨',t:'Post',cap:'Golf art prints — now available at richmanssport.com',lk:'740',cm:'45',sh:'110',dt:'2024',url:'https://www.instagram.com/richmanssport/',bg:'linear-gradient(135deg,#0a1a2a,#1a2a3a)'},
+  {i:'🏆',t:'Post',cap:'Tee Time Secured. New collection dropping soon.',lk:'620',cm:'38',sh:'90',dt:'2024',url:'https://www.instagram.com/richmanssport/',bg:'linear-gradient(135deg,#2a2a1a,#1a1a0a)'},
+],ttPosts:[
+  {i:'🏌️',t:'Video',cap:'Golf art that hits different #golf #richmanssport',vw:'12.4K',lk:'890',sh:'140',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#0a2020,#102030)'},
+  {i:'🎨',t:'Video',cap:'Making golf art — behind the scenes',vw:'8.2K',lk:'620',sh:'95',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#201020,#102020)'},
+  {i:'🧢',t:'Video',cap:'The Golf hat reveal #teetimesecured',vw:'15.1K',lk:'1.1K',sh:'210',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#1a1a10,#20200a)'},
+  {i:'⛳',t:'Video',cap:'Which Richmans print is your favorite?',vw:'6.8K',lk:'480',sh:'72',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#102010,#0a200a)'},
+  {i:'🖼️',t:'Video',cap:'Golf wall art collection walkthrough',vw:'9.3K',lk:'710',sh:'120',dt:'2024',url:'https://www.tiktok.com/@richmanssport',bg:'linear-gradient(135deg,#20100a,#2a1a10)'},
+]},'marketwake':{id:'marketwake',name:'MARKETWAKE',short:'Marketwake',color:'#3b82f6',logo:'',ig:'@marketwake',tt:'@marketwake',web:'marketwake.com',igGoal:10000,igCur:0,revGoal:1000000,revCur:0,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[],ttPosts:[]},'champagne-celebrations':{id:'champagne-celebrations',name:'CHAMPAGNE CELEBRATIONS',short:'Champagne Celebrations',color:'#d4af37',logo:'',ig:'@champagnecelebrations',tt:'@champagnecelebrations',web:'champagnecelebrations.com',igGoal:50000,igCur:0,revGoal:500000,revCur:0,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[],ttPosts:[]}};
+
+let P=JSON.parse(localStorage.getItem('rs-p3')||'null')||JSON.parse(JSON.stringify(DFLT_PROFILES));
+let CID=localStorage.getItem('rs-cid3')||'richmans-sport';
+function gp(){return P[CID]||P['richmans-sport']}
+function sp(){localStorage.setItem('rs-p3',JSON.stringify(P))}
+let theme,actMods,modOrder,modSizes;
+
+function loadP(){
+  const p=gp();theme=p.theme||'night';
+  actMods=p.mods?[...p.mods]:MODS.filter(m=>m.on).map(m=>m.id);
+  modOrder=p.order?[...p.order]:[...actMods];
+  modSizes=p.sizes?{...p.sizes}:{};
+  if(theme==='day')document.documentElement.setAttribute('data-theme','day');else document.documentElement.removeAttribute('data-theme');
+  document.getElementById('thN').classList.toggle('act',theme==='night');
+  document.getElementById('thD').classList.toggle('act',theme==='day');
+  document.getElementById('hBrand').textContent=p.name;
+  const logo=document.getElementById('hLogo');logo.src=p.logo||'';logo.style.display=p.logo?'':'none';
+  document.getElementById('profBtnN').textContent=p.short;
+  document.title=p.short+' — Command Center';
+}
+function saveP(){const p=gp();p.theme=theme;p.mods=[...actMods];p.order=[...modOrder];p.sizes={...modSizes};sp()}
+
+function switchP(id){saveP();CID=id;localStorage.setItem('rs-cid3',id);loadP();renderAll();renderPD()}
+function togglePD(){document.getElementById('profDD').classList.toggle('show')}
+function renderPD(){
+  let h='';Object.values(P).forEach(p=>{h+=`<div class="pf-opt ${p.id===CID?'active':''}" onclick="switchP('${p.id}')"><span class="pf-dot" style="background:${p.color}"></span><div><div class="pf-name">${p.short}</div><div class="pf-sub">${p.web}</div></div></div>`});
+  document.getElementById('profDD').innerHTML=h;
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.prof-sw')){document.getElementById('profDD').classList.remove('show')}});
+
+function setTheme(t){theme=t;if(t==='day')document.documentElement.setAttribute('data-theme','day');else document.documentElement.removeAttribute('data-theme');document.getElementById('thN').classList.toggle('act',t==='night');document.getElementById('thD').classList.toggle('act',t==='day');saveP();renderDash()}
+function toggleSB(){document.getElementById('sb').classList.toggle('open');document.getElementById('ov').classList.toggle('open')}
+function nav(pg){
+  document.getElementById('sb').classList.remove('open');document.getElementById('ov').classList.remove('open');
+  document.getElementById('pConn').classList.remove('vis');document.getElementById('pMods').classList.remove('vis');
+  ['goalsBar','dash','postsSec'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=''});
+  document.querySelector('.hdr').style.display='';
+  document.querySelectorAll('.sb-lnk').forEach(l=>l.classList.remove('act'));
+  if(pg==='dash'){document.querySelectorAll('.sb-lnk')[0].classList.add('act');renderDash()}
+  else if(pg==='conn'){document.querySelectorAll('.sb-lnk')[1].classList.add('act');document.getElementById('pConn').classList.add('vis');document.querySelector('.hdr').style.display='none';['goalsBar','dash','postsSec'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'})}
+  else if(pg==='modules'){document.querySelectorAll('.sb-lnk')[2].classList.add('act');document.getElementById('pMods').classList.add('vis');document.querySelector('.hdr').style.display='none';['goalsBar','dash','postsSec'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'});renderLib()}
+}
+
+function getSz(id){return modSizes[id]||(MODS.find(m=>m.id===id)||{}).sz||'sm'}
+function setSz(id,s){modSizes[id]=s;saveP();renderDash()}
+function togSP(id,e){e.stopPropagation();const el=document.getElementById('sp-'+id);const o=el.classList.contains('show');document.querySelectorAll('.sp').forEach(p=>p.classList.remove('show'));if(!o)el.classList.add('show')}
+document.addEventListener('click',()=>document.querySelectorAll('.sp').forEach(p=>p.classList.remove('show')));
+
+// Drag
+let dragging=false,clone=null,srcId=null,offX=0,offY=0,startX=0,startY=0,activated=false,snapT=null;
+function initDrag(el,id){
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('.mh-btn'))return;e.preventDefault();e.stopPropagation();
+    const m=document.getElementById('m-'+id);if(!m)return;const r=m.getBoundingClientRect();
+    srcId=id;startX=e.clientX;startY=e.clientY;offX=e.clientX-r.left;offY=e.clientY-r.top;activated=false;
+    document.addEventListener('pointermove',onPM);document.addEventListener('pointerup',onPU)})
+}
+function onPM(e){
+  if(!activated){if(Math.abs(e.clientX-startX)<5&&Math.abs(e.clientY-startY)<5)return;activated=true;
+    dragging=true;const m=document.getElementById('m-'+srcId);if(!m)return;const r=m.getBoundingClientRect();
+    clone=m.cloneNode(true);clone.classList.add('dragging');clone.style.width=r.width+'px';clone.style.height=r.height+'px';clone.style.left=r.left+'px';clone.style.top=r.top+'px';
+    document.body.appendChild(clone);m.classList.add('ghost');document.body.style.userSelect='none';document.body.style.cursor='grabbing'}
+  if(!dragging||!clone)return;clone.style.left=(e.clientX-offX)+'px';clone.style.top=(e.clientY-offY)+'px';
+  const t=findSnap(e.clientX,e.clientY);document.querySelectorAll('.mod.snap').forEach(m=>m.classList.remove('snap'));
+  if(t&&t!==srcId){const el=document.getElementById('m-'+t);if(el)el.classList.add('snap')}snapT=t;
+}
+function onPU(){
+  document.removeEventListener('pointermove',onPM);document.removeEventListener('pointerup',onPU);
+  if(!dragging){srcId=null;return}
+  if(snapT&&snapT!==srcId){const fi=modOrder.indexOf(srcId),ti=modOrder.indexOf(snapT);if(fi>-1&&ti>-1){modOrder.splice(fi,1);modOrder.splice(ti,0,srcId);saveP()}}
+  if(clone){clone.style.transition='opacity .15s';clone.style.opacity='0';setTimeout(()=>{cleanup();renderDash()},150)}else cleanup()
+}
+function cleanup(){if(clone&&clone.parentNode)clone.parentNode.removeChild(clone);document.querySelectorAll('.ghost').forEach(m=>m.classList.remove('ghost'));document.querySelectorAll('.snap').forEach(m=>m.classList.remove('snap'));clone=null;dragging=false;srcId=null;snapT=null;activated=false;document.body.style.userSelect='';document.body.style.cursor=''}
+function findSnap(cx,cy){let c=null,cd=1e9;document.querySelectorAll('.mod:not(.ghost):not(.dragging)').forEach(m=>{const r=m.getBoundingClientRect();const mx=r.left+r.width/2,my=r.top+r.height/2,d=Math.hypot(cx-mx,cy-my);if(cx>=r.left-30&&cx<=r.right+30&&cy>=r.top-30&&cy<=r.bottom+30&&d<cd){cd=d;c=m.id.replace('m-','')}});return c}
+
+function oAuth(btn,n){const c=btn.closest('.conn');btn.textContent='Connecting...';btn.style.opacity='.6';setTimeout(()=>{const st=c.querySelector('.conn-st');st.className='conn-st on';st.innerHTML='<span class="dot"></span>Connected';btn.textContent='Disconnect';btn.style.opacity='1';btn.className='conn-btn';btn.style.background='rgba(248,113,113,.1)';btn.style.color='var(--red)'},1500)}
+
+function renderLib(){
+  let h='',lc='';MODS.forEach(m=>{if(m.cat!==lc){h+=`<div style="grid-column:1/-1;padding:8px 0 0"><span style="font:700 9px 'Inter';text-transform:uppercase;letter-spacing:2px;color:var(--t3)">${m.cat}</span></div>`;lc=m.cat}
+  h+=`<div class="lib-mod ${actMods.includes(m.id)?'on':''}" onclick="togMod('${m.id}')"><div class="lib-mod-i">${m.i}</div><div class="lib-mod-n">${m.n}</div><div class="lib-mod-d">${m.d}</div><span class="lib-mod-s">${m.s}</span></div>`});
+  document.getElementById('libGrid').innerHTML=h;document.getElementById('mcBadge').textContent=actMods.length;
+}
+function togMod(id){const i=actMods.indexOf(id);if(i>-1){actMods.splice(i,1);modOrder=modOrder.filter(m=>m!==id)}else{actMods.push(id);modOrder.push(id)}saveP();renderLib()}
+
+function renderDash(){
+  const c=document.getElementById('dash');actMods.forEach(id=>{if(!modOrder.includes(id))modOrder.push(id)});
+  const ord=modOrder.filter(id=>actMods.includes(id));let h='';
+  ord.forEach(id=>{const sz=getSz(id);const r=MODS.find(m=>m.id===id);if(!r)return;
+    h+=`<div class="mod ${sz}" id="m-${id}"><div class="mh" data-did="${id}"><div class="mh-left"><span class="mh-icon">${r.i}</span><span class="mh-title">${r.n}</span></div><div class="mh-right"><button class="mh-btn" onclick="togSP('${id}',event)" title="Resize">⤢</button><button class="mh-btn grip" title="Drag to move">⠿</button></div><div class="sp" id="sp-${id}"><div class="sp-o ${sz==='sm'?'act':''}" onclick="setSz('${id}','sm')">Small</div><div class="sp-o ${sz==='md'?'act':''}" onclick="setSz('${id}','md')">Medium</div><div class="sp-o ${sz==='lg'?'act':''}" onclick="setSz('${id}','lg')">Large</div><div class="sp-o ${sz==='xl'?'act':''}" onclick="setSz('${id}','xl')">Full</div></div></div>${gc(id)}</div>`});
+  c.innerHTML=h;
+  document.querySelectorAll('.mh[data-did]').forEach(el=>initDrag(el,el.getAttribute('data-did')));
+  setTimeout(()=>{if(actMods.includes('ig-growth'))mkIGC();if(actMods.includes('revenue-chart'))mkRC()},50);
+}
+
+function gc(id){
+  switch(id){
+  case 'social-followers':return `<div class="sr"><div class="ll"><div class="si ig"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div><div><div class="lp">${gp().ig}</div><div class="ls">Instagram</div></div></div><div style="text-align:right"><div class="fn">12,847</div><div class="sc up">+342</div></div></div><div class="sr"><div class="ll"><div class="si tt"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-.81.05l-.38-.25z"/></svg></div><div><div class="lp">${gp().tt}</div><div class="ls">TikTok</div></div></div><div style="text-align:right"><div class="fn">8,234</div><div class="sc up">+1,205</div></div></div>`;
+  case 'ig-growth':return `<div class="cw"><canvas id="igC"></canvas></div>`;
+  case 'ig-engagement':return `<div class="sb-grid c2"><div class="sbx"><div class="sbv">4.8%</div><div class="sbl">Engagement</div></div><div class="sbx"><div class="sbv">3,241</div><div class="sbl">Likes</div></div><div class="sbx"><div class="sbv">287</div><div class="sbl">Comments</div></div><div class="sbx"><div class="sbv">412</div><div class="sbl">Saves</div></div></div>`;
+  case 'ig-top-posts':return `<div class="lr"><div class="ll"><div class="li">🏌️</div><div><div class="lp">Spring Driver Reveal</div><div class="ls">Reel</div></div></div><div class="lv">4,820</div></div><div class="lr"><div class="ll"><div class="li">⛳</div><div><div class="lp">Course Day Vlog</div><div class="ls">Carousel</div></div></div><div class="lv">3,105</div></div><div class="lr"><div class="ll"><div class="li">👕</div><div><div class="lp">New Polo Drop</div><div class="ls">Photo</div></div></div><div class="lv">2,440</div></div>`;
+  case 'ig-stories':return `<div class="sb-grid c2"><div class="sbx"><div class="sbv">2,180</div><div class="sbl">Avg Views</div></div><div class="sbx"><div class="sbv">78%</div><div class="sbl">Completion</div></div><div class="sbx"><div class="sbv">94</div><div class="sbl">Replies</div></div><div class="sbx"><div class="sbv">340</div><div class="sbl">Link Taps</div></div></div>`;
+  case 'ig-reels':return `<div class="sb-grid c2"><div class="sbx"><div class="sbv">18.4K</div><div class="sbl">Avg Views</div></div><div class="sbx"><div class="sbv">6.2%</div><div class="sbl">Engagement</div></div><div class="sbx"><div class="sbv">520</div><div class="sbl">Shares</div></div><div class="sbx"><div class="sbv">62%</div><div class="sbl">Watch-thru</div></div></div>`;
+  case 'tt-performance':return `<div class="sb-grid c2"><div class="sbx"><div class="sbv">142K</div><div class="sbl">Views 30d</div></div><div class="sbx"><div class="sbv">8,234</div><div class="sbl">Followers</div></div><div class="sbx"><div class="sbv">6.1K</div><div class="sbl">Likes 30d</div></div><div class="sbx"><div class="sbv">890</div><div class="sbl">Shares 30d</div></div></div>`;
+  case 'social-reach':return `<div class="bn m">284K</div><div class="ss">Total Reach — 30 Days</div><div class="sc up">+24%</div><div class="mg c2"><div><div class="mv">196K</div><div class="ml">Instagram</div></div><div><div class="mv">88K</div><div class="ml">TikTok</div></div></div>`;
+  case 'monthly-revenue':return `<div class="bn">$24,680</div><div class="sc up">+18.3% vs last month</div><div class="mg c3"><div><div class="mv">186</div><div class="ml">Orders</div></div><div><div class="mv">$132</div><div class="ml">Avg Order</div></div><div><div class="mv">3.2%</div><div class="ml">Conv Rate</div></div></div>`;
+  case 'revenue-chart':return `<div class="cw"><canvas id="rvC"></canvas></div>`;
+  case 'daily-sales':return `<div class="bn m">$1,240</div><div class="ss">Today</div><div class="sc up">+8%</div><div class="mg c2"><div><div class="mv">14</div><div class="ml">Orders</div></div><div><div class="mv">$89</div><div class="ml">Avg Order</div></div></div>`;
+  case 'recent-orders':return `<div class="og"><div class="ogh">Order</div><div class="ogh">Customer</div><div class="ogh">Amount</div><div class="ogh">Status</div><div class="ogc" style="color:var(--accent);font-family:'JetBrains Mono',mono">#RS-4821</div><div class="ogc">Marcus T.</div><div class="ogc" style="font-family:'JetBrains Mono',mono;font-weight:600">$289</div><div class="ogc"><span class="badge g">Fulfilled</span></div><div class="ogc" style="color:var(--accent);font-family:'JetBrains Mono',mono">#RS-4820</div><div class="ogc">David K.</div><div class="ogc" style="font-family:'JetBrains Mono',mono;font-weight:600">$124</div><div class="ogc"><span class="badge b">Shipped</span></div><div class="ogc" style="color:var(--accent);font-family:'JetBrains Mono',mono">#RS-4819</div><div class="ogc">Sarah L.</div><div class="ogc" style="font-family:'JetBrains Mono',mono;font-weight:600">$67</div><div class="ogc"><span class="badge y">Processing</span></div><div class="ogc" style="color:var(--accent);font-family:'JetBrains Mono',mono">#RS-4818</div><div class="ogc">James W.</div><div class="ogc" style="font-family:'JetBrains Mono',mono;font-weight:600">$445</div><div class="ogc"><span class="badge g">Fulfilled</span></div></div>`;
+  case 'quick-stats':return `<div class="lr"><div class="lp">Returning Customers</div><div>38% <span class="badge g">Good</span></div></div><div class="lr"><div class="lp">Cart Abandonment</div><div>61% <span class="badge y">Avg</span></div></div><div class="lr"><div class="lp">Refund Rate</div><div>2.1% <span class="badge g">Low</span></div></div><div class="lr"><div class="lp">Email Subscribers</div><div style="font:600 12px 'JetBrains Mono',mono">4,290</div></div>`;
+  case 'inventory':return `<div class="lr"><div class="ll"><div class="li">🏌️</div><div><div class="lp">RS Pro Driver</div><div class="ls">SKU-DRV-001</div></div></div><div>142 <span class="badge g">Stock</span></div></div><div class="lr"><div class="ll"><div class="li">🧤</div><div><div class="lp">RS Tour Gloves</div><div class="ls">SKU-GLV-003</div></div></div><div>28 <span class="badge y">Low</span></div></div><div class="lr"><div class="ll"><div class="li">👕</div><div><div class="lp">RS Polo</div><div class="ls">SKU-POL-007</div></div></div><div>215 <span class="badge g">Stock</span></div></div><div class="lr"><div class="ll"><div class="li">⛳</div><div><div class="lp">RS Balls</div><div class="ls">SKU-BLL-012</div></div></div><div>8 <span class="badge r">Reorder</span></div></div>`;
+  case 'website-analytics':return `<div class="sb-grid c2"><div class="sbx"><div class="sbv">14,892</div><div class="sbl">Visitors</div><div class="sbc" style="color:var(--green)">+22%</div></div><div class="sbx"><div class="sbv">2:34</div><div class="sbl">Avg Session</div><div class="sbc" style="color:var(--green)">+12%</div></div><div class="sbx"><div class="sbv">46.2%</div><div class="sbl">Bounce</div><div class="sbc" style="color:var(--green)">-3%</div></div><div class="sbx"><div class="sbv">5,840</div><div class="sbl">Product Views</div><div class="sbc" style="color:var(--green)">+31%</div></div></div>`;
+  case 'ga4-traffic':return `<div class="bn m">18,240</div><div class="ss">Sessions — March</div><div class="sc up">+26%</div><div class="tbar"><span style="width:32%;background:var(--accent)"></span><span style="width:28%;background:var(--green)"></span><span style="width:16%;background:var(--blue)"></span><span style="width:12%;background:#a855f7"></span><span style="width:8%;background:#f59e0b"></span><span style="width:4%;background:var(--t3)"></span></div><div class="tleg"><div class="tl"><span style="background:var(--accent)"></span>Direct 32%</div><div class="tl"><span style="background:var(--green)"></span>Organic 28%</div><div class="tl"><span style="background:var(--blue)"></span>Social 16%</div><div class="tl"><span style="background:#a855f7"></span>Paid 12%</div><div class="tl"><span style="background:#f59e0b"></span>LLM 8%</div><div class="tl"><span style="background:var(--t3)"></span>Other 4%</div></div>`;
+  case 'email-stats':return `<div class="bn m">4,290</div><div class="ss">Subscribers</div><div class="sc up">+186</div><div class="mg c3"><div><div class="mv">42%</div><div class="ml">Open Rate</div></div><div><div class="mv">3.8%</div><div class="ml">Click Rate</div></div><div><div class="mv">$820</div><div class="ml">Revenue</div></div></div>`;
+  case 'upcoming-events':return `<div class="ev"><div class="evd"><div class="evm">Mar</div><div class="evdy">20</div></div><div><div class="evt">Spring Collection</div><div class="evds">New polos & hats</div><span class="evtag">Launch</span></div></div><div class="ev"><div class="evd"><div class="evm">Mar</div><div class="evdy">28</div></div><div><div class="evt">Masters Week Sale</div><div class="evds">15% off sitewide</div><span class="evtag">Promo</span></div></div><div class="ev"><div class="evd"><div class="evm">Apr</div><div class="evdy">05</div></div><div><div class="evt">Influencer Shoot</div><div class="evds">Content for IG & TT</div><span class="evtag">Collab</span></div></div>`;
+  case 'golf-calendar':return renderGolfCal();
+  default:return `<div style="color:var(--t3);font-size:10px;padding:16px 0;text-align:center">Connect data source</div>`}
+}
+
+function mkIGC(){const el=document.getElementById('igC');if(!el)return;const ctx=el.getContext('2d');const s=getComputedStyle(document.documentElement);const a=s.getPropertyValue('--accent').trim();const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,a+'cc');g.addColorStop(1,a+'22');new Chart(ctx,{type:'bar',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[9420,10105,10780,11350,12505,12847],backgroundColor:g,borderRadius:4,barThickness:24}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:a,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,callbacks:{label:c=>c.parsed.y.toLocaleString()+' followers'}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:9}},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>(v/1000).toFixed(1)+'k'},border:{display:false},suggestedMin:8000}}}})}
+function mkRC(){const el=document.getElementById('rvC');if(!el)return;const ctx=el.getContext('2d');const s=getComputedStyle(document.documentElement);const c=s.getPropertyValue('--green').trim();const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,c+'40');g.addColorStop(1,'transparent');new Chart(ctx,{type:'line',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[14200,18400,22100,19800,20860,24680],borderColor:c,backgroundColor:g,fill:true,tension:.4,pointRadius:3,pointBackgroundColor:c}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:9}},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>'$'+(v/1000)+'k'},border:{display:false}}}}})}
+
+// Goals
+function animA(id,pid,pct){const e=document.getElementById(id),p=document.getElementById(pid);if(!e||!p)return;e.style.strokeDashoffset=CIRC-(CIRC*Math.min(pct,1));p.textContent=Math.round(pct*100)+'%'}
+function renderG(){
+  const p=gp();
+  document.getElementById('igGL').textContent=p.igGL;document.getElementById('revGL').textContent=p.revGL;
+  document.getElementById('igIn').value=p.igCur;document.getElementById('igGoalIn').value=p.igGoal;
+  document.getElementById('igCD').textContent=p.igCur.toLocaleString();
+  document.getElementById('igTD').textContent='/ '+p.igGoal.toLocaleString();
+  document.getElementById('igRem').textContent=p.ig+' — '+(Math.max(0,p.igGoal-p.igCur)).toLocaleString()+' to go';
+  setTimeout(()=>animA('aIG','aIGP',p.igCur/p.igGoal),200);
+  document.getElementById('revIn').value=p.revCur;document.getElementById('revGoalIn').value=p.revGoal;
+  document.getElementById('revCD').textContent='$'+p.revCur.toLocaleString();
+  document.getElementById('revTD').textContent='/ $'+p.revGoal.toLocaleString();
+  document.getElementById('revRem').textContent='$'+(Math.max(0,p.revGoal-p.revCur)).toLocaleString()+' remaining';
+  setTimeout(()=>animA('aRev','aRevP',p.revCur/p.revGoal),200);
+}
+function updateG(t){
+  const p=gp();
+  if(t==='ig'){
+    const v=parseInt(document.getElementById('igIn').value.replace(/\D/g,''));
+    const g=parseInt(document.getElementById('igGoalIn').value.replace(/\D/g,''));
+    if(!isNaN(v)&&v>=0)p.igCur=v;
+    if(!isNaN(g)&&g>0)p.igGoal=g;
+  }else{
+    const v=parseInt(document.getElementById('revIn').value.replace(/\D/g,''));
+    const g=parseInt(document.getElementById('revGoalIn').value.replace(/\D/g,''));
+    if(!isNaN(v)&&v>=0)p.revCur=v;
+    if(!isNaN(g)&&g>0)p.revGoal=g;
+  }
+  sp();renderG();
+}
+
+// Posts
+// RSS Feed URLs per profile
+const RSS_FEEDS = {
+  'richmans-sport': { ig: 'https://rss.app/feeds/ljKWeYupkgeqJu4H.xml', tt: 'https://rss.app/feeds/oaxmUgrcMj7C2YA7.xml' },
+  'marketwake': { ig: '', tt: '' },
+  'champagne-celebrations': { ig: '', tt: '' }
+};
+
+async function fetchRSS(url) {
+  if (!url) return [];
+  // Try multiple CORS proxies in order
+  const proxies = [
+    'https://api.allorigins.win/get?url=',
+    'https://corsproxy.io/?url=',
+  ];
+  for (const proxy of proxies) {
+    try {
+      const res = await fetch(proxy + encodeURIComponent(url));
+      let text;
+      if (proxy.includes('allorigins')) {
+        const json = await res.json();
+        text = json.contents;
+      } else {
+        text = await res.text();
+      }
+      if (!text || text.length < 100) continue;
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'text/xml');
+      if (xml.querySelector('parsererror')) continue;
+      const items = xml.querySelectorAll('item');
+      if (!items.length) continue;
+      const posts = [];
+      items.forEach((item, i) => {
+        if (i >= 5) return;
+        const title = item.querySelector('title')?.textContent || '';
+        const link = item.querySelector('link')?.textContent || '';
+        const pubDate = item.querySelector('pubDate')?.textContent || '';
+        let img = '';
+        // 1: Parse img from description HTML
+        const desc = item.querySelector('description')?.textContent || '';
+        const m1 = desc.match(/src=["']([^"']+)["']/);
+        if (m1) img = m1[1];
+        // 2: media:content
+        if (!img) {
+          const els = item.getElementsByTagName('*');
+          for (let j = 0; j < els.length; j++) {
+            const nn = els[j].nodeName.toLowerCase();
+            if (nn === 'media:content' || nn === 'content') {
+              const u = els[j].getAttribute('url');
+              if (u && u.startsWith('http')) { img = u; break; }
+            }
+          }
+        }
+        // 3: enclosure
+        if (!img) { const enc = item.querySelector('enclosure'); if (enc) img = enc.getAttribute('url') || ''; }
+        // Proxy the image through a service to avoid CDN blocking
+        if (img) img = 'https://wsrv.nl/?url=' + encodeURIComponent(img) + '&w=400&h=500&fit=cover&output=webp';
+        const date = pubDate ? new Date(pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        posts.push({ title, link, img, date });
+      });
+      if (posts.length) return posts;
+    } catch (e) { console.log('RSS proxy failed:', proxy, e); }
+  }
+  return [];
+}
+
+function renderPostCard(post, platform) {
+  const hasImg = post.img && post.img.length > 10;
+  const fallback = platform === 'ig' ? '📷' : '🎵';
+  return `<a class="post" href="${post.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+    <div class="post-img">
+      ${hasImg ? `<img src="${post.img}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><div class="ph" style="display:none"><span class="ph-i">${fallback}</span><span class="ph-t">Post</span></div>` : `<div class="ph"><span class="ph-i">${fallback}</span><span class="ph-t">Post</span></div>`}
+      <div class="post-play"><div class="play-c"><svg width="14" height="14" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg></div></div>
+    </div>
+    <div class="post-info">
+      <div class="post-cap">${post.title}</div>
+      <div class="post-date">${post.date}</div>
+    </div>
+  </a>`;
+}
+
+async function renderPosts() {
+  const p = gp();
+  document.getElementById('igHD').textContent = p.ig;
+  document.getElementById('ttHD').textContent = p.tt;
+  const igC = document.getElementById('igPG');
+  const ttC = document.getElementById('ttPG');
+  const feeds = RSS_FEEDS[CID] || {};
+
+  // Instagram
+  if (feeds.ig) {
+    igC.innerHTML = '<div style="grid-column:1/-1;padding:20px;color:var(--t3);font-size:10px;text-align:center">Loading latest posts...</div>';
+    const igPosts = await fetchRSS(feeds.ig);
+    if (igPosts.length) {
+      igC.innerHTML = igPosts.map(x => renderPostCard(x, 'ig')).join('');
+    } else {
+      igC.innerHTML = '<div style="grid-column:1/-1;padding:20px;color:var(--t3);font-size:10px;text-align:center">Could not load feed. Try refreshing.</div>';
+    }
+  } else if (p.igPosts && p.igPosts.length) {
+    igC.innerHTML = p.igPosts.map(x => `<a class="post" href="${x.url}" target="_blank" style="text-decoration:none;color:inherit"><div class="post-img"><div class="ph" style="background:${x.bg}"><span class="ph-i">${x.i}</span><span class="ph-t">${x.t}</span></div></div><div class="post-info"><div class="post-cap">${x.cap}</div><div class="post-date">${x.dt}</div></div></a>`).join('');
+  } else {
+    igC.innerHTML = '<div style="grid-column:1/-1;padding:20px;color:var(--t3);font-size:10px;text-align:center">Add an RSS feed URL to show posts</div>';
+  }
+
+  // TikTok
+  if (feeds.tt) {
+    ttC.innerHTML = '<div style="grid-column:1/-1;padding:20px;color:var(--t3);font-size:10px;text-align:center">Loading latest posts...</div>';
+    const ttPosts = await fetchRSS(feeds.tt);
+    if (ttPosts.length) {
+      ttC.innerHTML = ttPosts.map(x => renderPostCard(x, 'tt')).join('');
+    } else {
+      ttC.innerHTML = '<div style="grid-column:1/-1;padding:20px;color:var(--t3);font-size:10px;text-align:center">Could not load feed. Try refreshing.</div>';
+    }
+  } else if (p.ttPosts && p.ttPosts.length) {
+    ttC.innerHTML = p.ttPosts.map(x => `<a class="post" href="${x.url}" target="_blank" style="text-decoration:none;color:inherit"><div class="post-img"><div class="ph" style="background:${x.bg}"><span class="ph-i">${x.i}</span><span class="ph-t">${x.t}</span></div></div><div class="post-info"><div class="post-cap">${x.cap}</div><div class="post-date">${x.dt}</div></div></a>`).join('');
+  } else {
+    ttC.innerHTML = '<div style="grid-column:1/-1;padding:20px;color:var(--t3);font-size:10px;text-align:center">Add an RSS feed URL to show posts</div>';
+  }
+}
+
+function renderAll(){renderDash();renderG();renderPosts();try{drawDoghouse();drawSign()}catch(e){}}
+
+// Golf Tournaments 2026 (PGA + LIV + Majors)
+const GOLF_EVENTS=[
+  {name:'The Sentry',dates:'Jan 2–5',tour:'PGA',d:new Date('2026-01-02')},
+  {name:'Sony Open',dates:'Jan 9–12',tour:'PGA',d:new Date('2026-01-09')},
+  {name:'LIV Riyadh',dates:'Feb 6–8',tour:'LIV',d:new Date('2026-02-06')},
+  {name:'WM Phoenix Open',dates:'Feb 6–9',tour:'PGA',d:new Date('2026-02-06')},
+  {name:'Genesis Invitational',dates:'Feb 13–16',tour:'PGA',d:new Date('2026-02-13')},
+  {name:'LIV Jeddah',dates:'Feb 13–15',tour:'LIV',d:new Date('2026-02-13')},
+  {name:'Arnold Palmer Inv.',dates:'Mar 5–8',tour:'PGA',d:new Date('2026-03-05')},
+  {name:'THE PLAYERS',dates:'Mar 12–15',tour:'PGA',d:new Date('2026-03-12')},
+  {name:'LIV Hong Kong',dates:'Mar 13–15',tour:'LIV',d:new Date('2026-03-13')},
+  {name:'Valspar Championship',dates:'Mar 19–22',tour:'PGA',d:new Date('2026-03-19')},
+  {name:'LIV Miami',dates:'Apr 3–5',tour:'LIV',d:new Date('2026-04-03')},
+  {name:'The Masters',dates:'Apr 9–12',tour:'MAJOR',d:new Date('2026-04-09')},
+  {name:'RBC Heritage',dates:'Apr 16–19',tour:'PGA',d:new Date('2026-04-16')},
+  {name:'LIV Adelaide',dates:'Apr 24–26',tour:'LIV',d:new Date('2026-04-24')},
+  {name:'PGA Championship',dates:'May 14–17',tour:'MAJOR',d:new Date('2026-05-14')},
+  {name:'Charles Schwab Challenge',dates:'May 21–24',tour:'PGA',d:new Date('2026-05-21')},
+  {name:'The Memorial',dates:'Jun 4–7',tour:'PGA',d:new Date('2026-06-04')},
+  {name:'U.S. Open',dates:'Jun 18–21',tour:'MAJOR',d:new Date('2026-06-18')},
+  {name:'LIV Nashville',dates:'Jun 19–21',tour:'LIV',d:new Date('2026-06-19')},
+  {name:'Travelers Championship',dates:'Jun 25–28',tour:'PGA',d:new Date('2026-06-25')},
+  {name:'The Open Championship',dates:'Jul 16–19',tour:'MAJOR',d:new Date('2026-07-16')},
+  {name:'LIV UK',dates:'Jul 17–19',tour:'LIV',d:new Date('2026-07-17')},
+  {name:'FedEx St. Jude',dates:'Aug 13–16',tour:'PGA',d:new Date('2026-08-13')},
+  {name:'BMW Championship',dates:'Aug 20–23',tour:'PGA',d:new Date('2026-08-20')},
+  {name:'TOUR Championship',dates:'Aug 27–30',tour:'PGA',d:new Date('2026-08-27')},
+  {name:'Ryder Cup',dates:'Sep 25–27',tour:'MAJOR',d:new Date('2026-09-25')},
+  {name:'LIV Team Championship',dates:'Sep 18–20',tour:'LIV',d:new Date('2026-09-18')},
+];
+
+function renderGolfCal(){
+  const now=new Date();
+  const upcoming=GOLF_EVENTS.filter(e=>e.d>=now).sort((a,b)=>a.d-b.d);
+  const next=upcoming[0];
+  if(!next)return '<div style="color:var(--t3);font-size:10px;text-align:center;padding:16px 0">No upcoming events</div>';
+  const diff=next.d-now;
+  const days=Math.floor(diff/(1000*60*60*24));
+  const hrs=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+  const mins=Math.floor((diff%(1000*60*60))/(1000*60));
+  const badge=next.tour==='MAJOR'?'major':next.tour==='LIV'?'liv':'pga';
+
+  let h=`<div class="ev-countdown"><div><div class="ev-next-name">${next.name}</div><div class="ev-next-info">${next.dates} · <span class="ev-tour-badge ${badge}">${next.tour}</span></div></div><div style="display:flex;align-items:center;gap:8px;margin-left:auto"><div class="ev-cd-unit"><div class="ev-cd-num">${days}</div><div class="ev-cd-label">Days</div></div><div class="ev-cd-sep">:</div><div class="ev-cd-unit"><div class="ev-cd-num">${hrs}</div><div class="ev-cd-label">Hrs</div></div><div class="ev-cd-sep">:</div><div class="ev-cd-unit"><div class="ev-cd-num">${String(mins).padStart(2,'0')}</div><div class="ev-cd-label">Min</div></div></div></div>`;
+
+  h+=`<div class="ev-cal"><div class="ev-cal-row head"><div class="c">Date</div><div class="c">Tournament</div><div class="c">Tour</div></div>`;
+  upcoming.slice(0,8).forEach((e,i)=>{
+    const b=e.tour==='MAJOR'?'major':e.tour==='LIV'?'liv':'pga';
+    h+=`<div class="ev-cal-row${i===0?' next':''}"><div class="c" style="font-family:'JetBrains Mono',mono;font-size:9px;color:var(--t2)">${e.dates}</div><div class="c" style="font-weight:600">${e.name}</div><div class="c"><span class="ev-tour-badge ${b}">${e.tour}</span></div></div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
+// Atlanta Clock
+function updateClock(){
+  const now=new Date();
+  const atl=new Date(now.toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const h=atl.getHours()%12||12;
+  const m=String(atl.getMinutes()).padStart(2,'0');
+  const s=String(atl.getSeconds()).padStart(2,'0');
+  const ampm=atl.getHours()>=12?'PM':'AM';
+  document.getElementById('atlTime').textContent=h+':'+m+' '+ampm;
+  document.getElementById('atlSec').textContent=':'+s;
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// Init
+document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+loadP();renderPD();renderAll();
+
+// ═══════════════════════════════════════
+// BUDDY — 8-bit pitbull, big head, cute
+// ═══════════════════════════════════════
+const PUP={el:null,canvas:null,ctx:null,x:300,y:400,dir:1,state:'walk',frame:0,stateTimer:0,walkSpeed:0.2,awake:true,SLEEP_AFTER:120000,t:0,minX:100,maxX:800};
+
+function col(){return document.documentElement.hasAttribute('data-theme')?'#5a9cc5':'#ffffff'}
+function bgC(){return document.documentElement.hasAttribute('data-theme')?'#f5f0eb':'#0a0a0a'}
+function px(c,x,y,w,h){c.fillRect(x,y,w||1,h||1)}
+
+function drawDoghouse(){
+  const cv=document.getElementById('dhCanvas');if(!cv)return;
+  const c=cv.getContext('2d');const cl=col();const bg=bgC();
+  c.clearRect(0,0,40,26);c.fillStyle=cl;
+  // Roof
+  for(let i=0;i<6;i++)c.fillRect(9-i*2,i,22+i*4,1);
+  // Walls
+  c.fillRect(1,6,38,20);
+  // Door
+  c.fillStyle=bg;c.fillRect(13,10,14,16);c.fillRect(14,8,12,2);c.fillRect(15,7,10,1);
+  c.fillStyle=cl;
+}
+function drawSign(){
+  const cv=document.getElementById('dhSign');if(!cv)return;
+  const c=cv.getContext('2d');const cl=col();const bg=bgC();
+  c.clearRect(0,0,18,22);c.fillStyle=cl;
+  c.fillRect(8,0,2,22); // post
+  c.fillRect(0,3,18,11); // board
+  // BUDDY in 3x5 pixel font
+  c.fillStyle=bg;
+  // B
+  px(c,2,5);px(c,2,6);px(c,2,7);px(c,2,8);px(c,2,9);px(c,3,5);px(c,3,7);px(c,3,9);px(c,4,6);px(c,4,8);
+  // U
+  px(c,6,5);px(c,6,6);px(c,6,7);px(c,6,8);px(c,7,9);px(c,8,5);px(c,8,6);px(c,8,7);px(c,8,8);
+  // D
+  px(c,10,5);px(c,10,6);px(c,10,7);px(c,10,8);px(c,10,9);px(c,11,5);px(c,11,9);px(c,12,6);px(c,12,7);px(c,12,8);
+  // Y
+  px(c,14,5);px(c,14,6);px(c,15,7);px(c,15,8);px(c,15,9);px(c,16,5);px(c,16,6);
+}
+
+function initPuppy(){
+  drawDoghouse();drawSign();
+  const div=document.createElement('div');div.id='puppy';
+  const cvs=document.createElement('canvas');cvs.width=24;cvs.height=24;
+  div.appendChild(cvs);
+  document.querySelector('.app').style.position='relative';
+  document.querySelector('.app').appendChild(div);
+  PUP.el=div;PUP.canvas=cvs;PUP.ctx=cvs.getContext('2d');
+  PUP.stateTimer=Date.now();
+  posPup();
+  div.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(!PUP.awake){wakePuppy();return}
+    const act=Math.random()>.5?'pet':'treat';
+    PUP.state=act;PUP.frame=0;PUP.stateTimer=Date.now();
+    // Emoji right above Buddy
+    const rect=PUP.el.getBoundingClientRect();
+    const em=document.createElement('div');em.className='puppy-reaction';
+    em.textContent=act==='pet'?'💖':'🦴';
+    em.style.left=rect.left+rect.width/2-8+'px';
+    em.style.top=rect.top-16+'px';
+    em.style.position='fixed';
+    document.body.appendChild(em);setTimeout(()=>em.remove(),1200);
+  });
+  requestAnimationFrame(puppyLoop);
+}
+
+function posPup(){
+  const dash=document.getElementById('dash');if(!dash)return;
+  const app=document.querySelector('.app');
+  const aR=app.getBoundingClientRect();const dR=dash.getBoundingClientRect();const sY=window.scrollY;
+  const mods=[...document.querySelectorAll('.mod')];
+  const rows=[];let lb=0;
+  mods.forEach(m=>{const r=m.getBoundingClientRect();if(Math.abs(r.bottom-lb)>10)rows.push(r.bottom+sY);lb=r.bottom});
+  if(rows.length>1){const g=Math.floor(Math.random()*(rows.length-1));PUP.y=rows[g]+4}
+  else if(rows.length===1)PUP.y=rows[0]+4;
+  else PUP.y=dR.top+sY+60;
+  const dl=dR.left-aR.left;
+  PUP.minX=dl+20;PUP.maxX=dl+dR.width-70;
+  PUP.x=PUP.minX+Math.random()*(PUP.maxX-PUP.minX);
+}
+
+function drawBuddy(){
+  const c=PUP.ctx;c.clearRect(0,0,24,24);
+  const cl=col();const bg=bgC();const f=Math.floor(PUP.frame)%4;
+  PUP.t+=0.015;
+  const bob=Math.round(Math.sin(PUP.t)*0.4);
+  const isPlay=PUP.state==='pet'||PUP.state==='treat';
+  // Play bow: front dips down, butt up
+  const headDip=isPlay?2:0;
+  const tailLift=isPlay?-3:0;
+  c.fillStyle=cl;
+
+  if(PUP.state==='sleep'){
+    // Curled up
+    c.fillRect(7,17,10,4);c.fillRect(6,16,2,2);c.fillRect(16,16,2,2);
+    // Big sleeping head
+    c.fillRect(1,10,11,8);c.fillRect(0,12,1,4);c.fillRect(12,12,1,4);
+    // Ears drooped
+    c.fillRect(0,9,3,3);c.fillRect(10,9,3,3);
+    // Snout
+    c.fillRect(0,15,3,2);
+    // Closed eyes (lines)
+    c.fillStyle=bg;px(c,3,13,3,1);px(c,8,13,3,1);
+    // Nose
+    c.fillStyle='#e88a9e';px(c,1,16,2,1);
+    // Tail
+    c.fillStyle=cl;px(c,17,15,2,1);px(c,18,14,2,1);
+    return;
+  }
+
+  // ══ HEAD — comically big, round ══
+  const hy=bob+headDip;
+  // Main head — round shape
+  c.fillRect(2,1+hy,10,10);
+  c.fillRect(1,2+hy,12,8);
+  c.fillRect(0,3+hy,14,6);
+  // Forehead roundness
+  c.fillRect(3,0+hy,8,1);
+  // Cheeks (wider)
+  c.fillRect(0,6+hy,1,3);c.fillRect(13,6+hy,1,3);
+  // Floppy ears — hang down past head
+  c.fillRect(0,0+hy,2,6);c.fillRect(-1,2+hy,1,3);
+  c.fillRect(12,0+hy,2,6);c.fillRect(14,2+hy,1,3);
+  // Snout — round muzzle
+  c.fillRect(2,9+hy,7,3);c.fillRect(1,10+hy,2,1);
+  // Nose — pink & shiny
+  c.fillStyle='#e88a9e';px(c,3,9+hy,3,2);
+  c.fillStyle='#ffb0c0';px(c,4,9+hy); // nose shine
+  // Mouth
+  if(isPlay){
+    // Big happy open mouth + tongue
+    c.fillStyle=bg;c.fillRect(3,11+hy,5,2);
+    c.fillStyle='#ff7b8e';c.fillRect(4,12+hy,3,2); // tongue hangs out
+    c.fillStyle='#e06070';px(c,5,13+hy,1,1); // tongue shadow
+  } else {
+    // Gentle smile
+    c.fillStyle=bg;px(c,4,11+hy,4,1);
+  }
+  // Eyes — big soulful circles
+  if(PUP.state==='pet'){
+    // Heart eyes
+    c.fillStyle='#ff5577';
+    px(c,3,3+hy);px(c,5,3+hy);px(c,4,4+hy);px(c,3,4+hy);px(c,5,4+hy);// left
+    px(c,8,3+hy);px(c,10,3+hy);px(c,9,4+hy);px(c,8,4+hy);px(c,10,4+hy);// right
+  } else {
+    // White of eyes
+    c.fillStyle=bg;
+    c.fillRect(3,3+hy,3,3);c.fillRect(8,3+hy,3,3);
+    // Big dark pupils
+    c.fillStyle=cl==='#ffffff'?'#333':'#0a0a0a';
+    const look=PUP.dir>0?1:0;
+    c.fillRect(3+look,4+hy,2,2);c.fillRect(8+look,4+hy,2,2);
+    // Eye shine
+    c.fillStyle=cl;px(c,3+look,4+hy);px(c,8+look,4+hy);
+  }
+
+  // Eyebrows (if playing — raised)
+  if(isPlay){c.fillStyle=cl;px(c,3,2+hy,3,1);px(c,8,2+hy,3,1)}
+
+  c.fillStyle=cl;
+  // ══ TINY BODY ══
+  c.fillRect(4,12+headDip,8,5);
+  c.fillRect(3,13+headDip,10,3);
+
+  // ══ TAIL — wagging fast when happy ══
+  const tailSpeed=isPlay?8:2;
+  const tw=Math.sin(PUP.t*tailSpeed)*1.5;
+  c.fillRect(13,12+headDip+Math.round(tw)+tailLift,2,1);
+  c.fillRect(14,11+headDip+Math.round(tw)+tailLift,2,1);
+  c.fillRect(15,10+headDip+Math.round(tw*0.8)+tailLift,1,1);
+
+  // ══ STUBBY LEGS ══
+  const legY=17+headDip;
+  if(PUP.state==='walk'){
+    const s=f;
+    // Front
+    c.fillRect(5,legY,2,s<2?4:3);c.fillRect(7,legY,2,s<2?3:4);
+    // Back
+    c.fillRect(9,legY,2,s>=2?4:3);c.fillRect(11,legY,2,s>=2?3:4);
+    // Paws
+    c.fillRect(4,legY+(s<2?3:2),3,1);c.fillRect(6,legY+(s<2?2:3),3,1);
+    c.fillRect(8,legY+(s>=2?3:2),3,1);c.fillRect(10,legY+(s>=2?2:3),3,1);
+  } else if(isPlay){
+    // Play bow — front legs stretched forward, butt up
+    c.fillRect(4,legY,2,4);c.fillRect(6,legY,2,4);// front stretched
+    c.fillRect(9,legY-1,2,3);c.fillRect(11,legY-1,2,3);// back shorter (butt up)
+    c.fillRect(3,legY+3,3,1);c.fillRect(5,legY+3,3,1);// front paws
+    c.fillRect(8,legY+1,3,1);c.fillRect(10,legY+1,3,1);// back paws
+  } else {
+    // Standing
+    c.fillRect(5,legY,2,3);c.fillRect(7,legY,2,3);c.fillRect(9,legY,2,3);c.fillRect(11,legY,2,3);
+    c.fillRect(4,legY+2,3,1);c.fillRect(6,legY+2,3,1);c.fillRect(8,legY+2,3,1);c.fillRect(10,legY+2,3,1);
+  }
+}
+
+function puppyLoop(){
+  const now=Date.now();
+  if(PUP.state==='pet'||PUP.state==='treat'){
+    PUP.frame+=0.04;
+    if(now-PUP.stateTimer>3000){PUP.state='walk';PUP.stateTimer=now}
+  } else if(PUP.state==='walk'&&PUP.awake){
+    PUP.frame+=0.02;
+    PUP.x+=PUP.walkSpeed*PUP.dir;
+    if(PUP.x>PUP.maxX)PUP.dir=-1;
+    if(PUP.x<PUP.minX)PUP.dir=1;
+    if(Math.random()<0.0008){PUP.state='sit';PUP.stateTimer=now}
+    if(Math.random()<0.0008)PUP.dir*=-1;
+    if(now-PUP.stateTimer>PUP.SLEEP_AFTER)goToSleep();
+  } else if(PUP.state==='sit'){
+    PUP.frame+=0.01;
+    if(now-PUP.stateTimer>4000){PUP.state='walk';PUP.stateTimer=now}
+  } else if(PUP.state==='sleep'){PUP.frame+=0.01}
+
+  PUP.el.style.transform=PUP.dir<0?'scaleX(-1)':'';
+  drawBuddy();
+  PUP.el.style.left=PUP.x+'px';PUP.el.style.top=PUP.y+'px';
+  PUP.el.style.display=PUP.state==='sleep'?'none':'';
+  requestAnimationFrame(puppyLoop);
+}
+
+function goToSleep(){
+  PUP.state='sleep';PUP.awake=false;
+  document.getElementById('dhZzz').style.display='';
+  const dh=document.getElementById('doghouse');
+  const app=document.querySelector('.app');
+  const dhR=dh.getBoundingClientRect();const aR=app.getBoundingClientRect();
+  PUP.x=dhR.left-aR.left+20;PUP.y=dhR.top+window.scrollY;
+}
+function wakePuppy(){
+  if(PUP.awake)return;
+  PUP.awake=true;PUP.state='walk';PUP.stateTimer=Date.now();
+  document.getElementById('dhZzz').style.display='none';
+  posPup();
+  const rect=PUP.el.getBoundingClientRect();
+  const em=document.createElement('div');em.className='puppy-reaction';em.style.position='fixed';
+  em.textContent='🐾';em.style.left=rect.left+rect.width/2-8+'px';em.style.top=rect.top-16+'px';
+  document.body.appendChild(em);setTimeout(()=>em.remove(),1200);
+}
+
+setTimeout(initPuppy,2000);
+window.addEventListener('resize',()=>{if(PUP.awake&&PUP.state==='walk')posPup()});
+</script>
+</body>
+</html>
