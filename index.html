@@ -396,6 +396,9 @@ const MODS=[
   {id:'email-stats',n:'Email Marketing',i:'📧',d:'Subscribers & rates',s:'Shopify',sz:'sm',on:0,cat:'Marketing'},
   {id:'upcoming-events',n:'Events',i:'📅',d:'Launches & promos',s:'Manual',sz:'md',on:1,cat:'Planning'},
   {id:'golf-calendar',n:'Golf Tournaments',i:'⛳',d:'PGA & LIV schedule with countdown',s:'Built-in',sz:'md',on:1,cat:'Planning'},
+  {id:'todo-list',n:'To-Do List',i:'☑️',d:'Tasks with priority, owner & due dates',s:'Local',sz:'md',on:0,cat:'Personal'},
+  {id:'bible-verse',n:'Daily Bible Verse',i:'📖',d:'Daily scripture from the web',s:'Web',sz:'sm',on:0,cat:'Personal'},
+  {id:'notes',n:'Notes',i:'📝',d:'Quick note-taking pad',s:'Local',sz:'md',on:0,cat:'Personal'},
 ];
 
 const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT',short:'Richmans Sport',color:'#7eb8e0',logo:'https://richmanssport.com/cdn/shop/files/Artboard_6_copy_3.png?v=1720464043',ig:'@richmanssport',tt:'@richmanssport',web:'richmanssport.com',igGoal:25000,igCur:12847,revGoal:250000,revCur:250000,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[
@@ -502,7 +505,7 @@ function renderDash(){
     h+=`<div class="mod ${sz}" id="m-${id}"><div class="mh" data-did="${id}"><div class="mh-left"><span class="mh-icon">${r.i}</span><span class="mh-title">${r.n}</span></div><div class="mh-right"><button class="mh-btn" onclick="togSP('${id}',event)" title="Resize">⤢</button><button class="mh-btn grip" title="Drag to move">⠿</button></div><div class="sp" id="sp-${id}"><div class="sp-o ${sz==='sm'?'act':''}" onclick="setSz('${id}','sm')">Small</div><div class="sp-o ${sz==='md'?'act':''}" onclick="setSz('${id}','md')">Medium</div><div class="sp-o ${sz==='lg'?'act':''}" onclick="setSz('${id}','lg')">Large</div><div class="sp-o ${sz==='xl'?'act':''}" onclick="setSz('${id}','xl')">Full</div></div></div>${gc(id)}</div>`});
   c.innerHTML=h;
   document.querySelectorAll('.mh[data-did]').forEach(el=>initDrag(el,el.getAttribute('data-did')));
-  setTimeout(()=>{if(actMods.includes('ig-growth'))mkIGC();if(actMods.includes('revenue-chart'))mkRC()},50);
+  setTimeout(()=>{if(actMods.includes('ig-growth'))mkIGC();if(actMods.includes('revenue-chart'))mkRC();postRenderMods()},50);
 }
 
 function gc(id){
@@ -526,6 +529,9 @@ function gc(id){
   case 'email-stats':return `<div class="bn m">4,290</div><div class="ss">Subscribers</div><div class="sc up">+186</div><div class="mg c3"><div><div class="mv">42%</div><div class="ml">Open Rate</div></div><div><div class="mv">3.8%</div><div class="ml">Click Rate</div></div><div><div class="mv">$820</div><div class="ml">Revenue</div></div></div>`;
   case 'upcoming-events':return `<div class="ev"><div class="evd"><div class="evm">Mar</div><div class="evdy">20</div></div><div><div class="evt">Spring Collection</div><div class="evds">New polos & hats</div><span class="evtag">Launch</span></div></div><div class="ev"><div class="evd"><div class="evm">Mar</div><div class="evdy">28</div></div><div><div class="evt">Masters Week Sale</div><div class="evds">15% off sitewide</div><span class="evtag">Promo</span></div></div><div class="ev"><div class="evd"><div class="evm">Apr</div><div class="evdy">05</div></div><div><div class="evt">Influencer Shoot</div><div class="evds">Content for IG & TT</div><span class="evtag">Collab</span></div></div>`;
   case 'golf-calendar':return renderGolfCal();
+  case 'todo-list':return `<div style="display:flex;gap:6px;margin-bottom:10px"><input id="todoText" placeholder="Task description..." style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none" onkeydown="if(event.key==='Enter')addTodo()"></div><div style="display:flex;gap:6px;margin-bottom:12px"><input id="todoOwner" placeholder="Owner" style="width:100px;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none"><input id="todoDue" type="date" style="padding:6px 8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none"><select id="todoPriority" style="padding:6px 8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:600 10px 'Inter';outline:none"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select><button onclick="addTodo()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow);white-space:nowrap">Add</button></div><div id="todoActive"></div><div id="todoCompToggle" onclick="toggleCompTodos()" style="display:none;align-items:center;gap:6px;padding:10px 0 4px;cursor:pointer;font:600 10px 'Inter';color:var(--t2);border-top:1px solid var(--brd);margin-top:8px"><span id="todoCompArrow" style="font-size:8px;display:inline-block;transition:transform .2s">&#9654;</span> Completed (<span id="todoCompCount">0</span>)</div><div id="todoCompList" style="display:none"></div>`;
+  case 'bible-verse':return `<div id="verseContent" style="padding:4px 0"><div style="color:var(--t3);font-size:11px;text-align:center;padding:16px 0">Loading verse...</div></div>`;
+  case 'notes':return `<div style="margin-bottom:10px"><textarea id="noteInput" placeholder="Write a note..." style="width:100%;min-height:80px;padding:10px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none;resize:vertical"></textarea><div style="display:flex;gap:6px;margin-top:6px"><input id="noteTitle" placeholder="Title (optional)" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none"><button onclick="addNote()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow)">Save</button></div></div><div id="notesList"></div>`;
   default:return `<div style="color:var(--t3);font-size:10px;padding:16px 0;text-align:center">Connect data source</div>`}
 }
 
@@ -838,6 +844,129 @@ updateClock();
 // Init
 document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 loadP();renderPD();renderAll();
+
+// ═══════════════════════════════════════
+// PERSONAL MODULES
+// ═══════════════════════════════════════
+function escH(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+// Post-render hook for personal modules
+function postRenderMods(){
+  if(document.getElementById('todoActive'))renderTodos();
+  if(document.getElementById('verseContent')&&!document.getElementById('verseContent').dataset.loaded)loadVerse();
+  if(document.getElementById('notesList'))renderNotes();
+}
+
+// ── TO-DO LIST ──
+function getTodos(){return JSON.parse(localStorage.getItem('cc-todos')||'[]')}
+function saveTodos(t){localStorage.setItem('cc-todos',JSON.stringify(t))}
+function todoPColor(p){return p==='high'?{bg:'rgba(248,113,113,.12)',c:'var(--red)'}:p==='low'?{bg:'rgba(96,165,250,.12)',c:'var(--blue)'}:{bg:'rgba(251,191,36,.12)',c:'#f59e0b'}}
+
+function addTodo(){
+  const inp=document.getElementById('todoText');
+  const text=inp.value.trim();if(!text)return;
+  const owner=document.getElementById('todoOwner').value.trim();
+  const due=document.getElementById('todoDue').value;
+  const priority=document.getElementById('todoPriority').value;
+  const todos=getTodos();
+  todos.push({id:Date.now(),text,priority,owner:owner||'',due:due||'',done:false,createdAt:new Date().toISOString(),completedAt:null});
+  saveTodos(todos);inp.value='';document.getElementById('todoOwner').value='';document.getElementById('todoDue').value='';renderTodos();
+}
+
+function toggleTodo(id){
+  const todos=getTodos();const t=todos.find(x=>x.id===id);
+  if(t){t.done=!t.done;t.completedAt=t.done?new Date().toISOString():null}
+  saveTodos(todos);renderTodos();
+}
+function deleteTodo(id){saveTodos(getTodos().filter(x=>x.id!==id));renderTodos()}
+
+function renderTodoItem(t,isDone){
+  const pc=todoPColor(t.priority);
+  const dueTxt=t.due?new Date(t.due+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+  const overdue=t.due&&!t.done&&new Date(t.due+'T23:59')<new Date();
+  return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--brd)">
+    <button onclick="toggleTodo(${t.id})" style="width:20px;height:20px;min-width:20px;border-radius:5px;border:1.5px solid ${isDone?'var(--green)':'var(--brd)'};background:${isDone?'rgba(52,211,153,.15)':'transparent'};cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--green);font-size:12px">${isDone?'&#10003;':''}</button>
+    <div style="flex:1;min-width:0">
+      <div style="font:${isDone?'400':'500'} 12px 'Inter';color:${isDone?'var(--t3)':'var(--t0)'};${isDone?'text-decoration:line-through;':''}">${escH(t.text)}</div>
+      <div style="display:flex;gap:8px;margin-top:2px;flex-wrap:wrap">${t.owner?`<span style="font:500 9px 'Inter';color:var(--t2)">&#128100; ${escH(t.owner)}</span>`:''}${dueTxt?`<span style="font:500 9px 'JetBrains Mono',mono;color:${overdue?'var(--red)':'var(--t3)'}">&#128197; ${dueTxt}${overdue?' (overdue)':''}</span>`:''}</div>
+    </div>
+    <span style="font:700 8px 'Inter';text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:4px;background:${pc.bg};color:${pc.c};white-space:nowrap">${t.priority}</span>
+    <button onclick="deleteTodo(${t.id})" style="width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px">&times;</button>
+  </div>`;
+}
+
+function renderTodos(){
+  const todos=getTodos();
+  const active=todos.filter(t=>!t.done);
+  const completed=todos.filter(t=>t.done).sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
+  const pOrder={high:0,medium:1,low:2};
+  active.sort((a,b)=>pOrder[a.priority]-pOrder[b.priority]);
+  const ac=document.getElementById('todoActive');if(!ac)return;
+  ac.innerHTML=active.length?active.map(t=>renderTodoItem(t,false)).join(''):'<div style="color:var(--t3);font-size:11px;padding:12px 0;text-align:center">No active tasks — add one above</div>';
+  const toggle=document.getElementById('todoCompToggle');
+  const compList=document.getElementById('todoCompList');
+  if(toggle){document.getElementById('todoCompCount').textContent=completed.length;toggle.style.display=completed.length?'flex':'none'}
+  if(compList)compList.innerHTML=completed.map(t=>renderTodoItem(t,true)).join('');
+}
+
+function toggleCompTodos(){
+  const list=document.getElementById('todoCompList');
+  const arrow=document.getElementById('todoCompArrow');
+  if(!list)return;
+  const open=list.style.display==='none';
+  list.style.display=open?'block':'none';
+  if(arrow)arrow.style.transform=open?'rotate(90deg)':'';
+}
+
+// ── DAILY BIBLE VERSE ──
+let verseLoaded=false;
+async function loadVerse(){
+  const el=document.getElementById('verseContent');if(!el||el.dataset.loaded)return;
+  try{
+    const res=await fetch('https://beta.ourmanna.com/api/v1/get?format=json&order=daily');
+    const d=await res.json();const v=d.verse;
+    el.innerHTML=`<div style="font:300 15px/1.7 'Inter';color:var(--t0);padding:8px 0">"${v.details.text}"</div><div style="font:600 11px 'Inter';color:var(--accent);margin-top:6px">— ${v.details.reference}</div>`;
+    el.dataset.loaded='1';
+  }catch(e){
+    try{
+      const res2=await fetch('https://bible-api.com/?random=verse');
+      const d2=await res2.json();
+      el.innerHTML=`<div style="font:300 15px/1.7 'Inter';color:var(--t0);padding:8px 0">"${d2.text.trim()}"</div><div style="font:600 11px 'Inter';color:var(--accent);margin-top:6px">— ${d2.reference}</div>`;
+      el.dataset.loaded='1';
+    }catch(e2){el.innerHTML='<div style="color:var(--t3);font-size:11px;text-align:center;padding:16px 0">Could not load verse</div>'}
+  }
+}
+
+// ── NOTES ──
+function getNotes(){return JSON.parse(localStorage.getItem('cc-notes')||'[]')}
+function saveNotes(n){localStorage.setItem('cc-notes',JSON.stringify(n))}
+
+function addNote(){
+  const body=document.getElementById('noteInput');
+  const title=document.getElementById('noteTitle');
+  const text=body.value.trim();if(!text)return;
+  const notes=getNotes();
+  notes.unshift({id:Date.now(),title:title.value.trim()||'',text,createdAt:new Date().toISOString()});
+  saveNotes(notes);body.value='';title.value='';renderNotes();
+}
+
+function deleteNote(id){saveNotes(getNotes().filter(n=>n.id!==id));renderNotes()}
+
+function renderNotes(){
+  const notes=getNotes();
+  const el=document.getElementById('notesList');if(!el)return;
+  if(!notes.length){el.innerHTML='<div style="color:var(--t3);font-size:11px;text-align:center;padding:12px 0">No notes yet</div>';return}
+  el.innerHTML=notes.map(n=>{
+    const d=new Date(n.createdAt);
+    const date=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return `<div style="padding:10px 12px;background:var(--bg0);border:1px solid var(--brd);border-radius:8px;margin-bottom:8px;position:relative">
+      <button onclick="deleteNote(${n.id})" style="position:absolute;top:8px;right:8px;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px">&times;</button>
+      ${n.title?`<div style="font:600 12px 'Inter';color:var(--t0);margin-bottom:4px">${escH(n.title)}</div>`:''}
+      <div style="font:400 11px/1.6 'Inter';color:var(--t1);white-space:pre-wrap;word-break:break-word">${escH(n.text)}</div>
+      <div style="font:400 9px 'JetBrains Mono',mono;color:var(--t3);margin-top:6px">${date}</div>
+    </div>`;
+  }).join('');
+}
 
 // ═══════════════════════════════════════
 // WINNIE — 8-bit pitbull, big head, cute
