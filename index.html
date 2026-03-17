@@ -1028,7 +1028,7 @@ function postRenderMods(){
   if(document.getElementById('notesList')){renderNoteFolderTabs();renderNotes()}
   if(document.getElementById('stoicContent'))loadStoic();
   if(document.getElementById('factContent')&&!document.getElementById('factContent').dataset.loaded)loadFact();
-  if(document.getElementById('wtChart')){initWeightDate();renderWeightAll()}
+  if(document.getElementById('wtChart')){initWeightDate();renderWeightAll();applyWeightPrivacy()}
   initStockModules();
 }
 
@@ -1253,9 +1253,13 @@ let weightChart=null;
 function getWeightLog(){return JSON.parse(localStorage.getItem('cc-weight-log')||'[]')}
 function saveWeightLog(log){localStorage.setItem('cc-weight-log',JSON.stringify(log))}
 
-let wtHidden=false;
+let wtHidden=localStorage.getItem('cc-wt-hidden')==='true';
 function toggleWeightPrivacy(){
   wtHidden=!wtHidden;
+  localStorage.setItem('cc-wt-hidden',wtHidden?'true':'false');
+  applyWeightPrivacy();
+}
+function applyWeightPrivacy(){
   const blur=wtHidden?'blur(8px)':'none';
   const btn=document.getElementById('wtEyeBtn');
   ['wtPrivate','wtTotal','wtGoalBar','wtChart','wtHistory'].forEach(id=>{
