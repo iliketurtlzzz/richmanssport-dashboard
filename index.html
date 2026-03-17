@@ -277,6 +277,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
       <div><div style="display:flex;align-items:baseline;gap:2px"><span class="atl-time" id="atlTime">--:--</span><span class="atl-sec" id="atlSec"></span></div><div class="atl-label">Atlanta, GA</div></div>
     </div>
     <div class="live"><span class="ldot"></span>LIVE</div>
+    <button id="petToggle" onclick="togglePetManual()" style="padding:4px 8px;border:1px solid var(--brd);border-radius:6px;background:var(--bg2);color:var(--t0);font-size:14px;cursor:pointer;box-shadow:var(--btnShadow);transition:all .15s" title="Switch pet">🐕</button>
     <span id="dateD" style="font:400 9px 'JetBrains Mono',mono;color:var(--t3)"></span>
   </div>
 </header>
@@ -1694,6 +1695,13 @@ function drawDoghouse(){
   c.fillStyle=p.dark;c.fillRect(13,10,14,16);c.fillRect(14,8,12,2);c.fillRect(15,7,10,1);
   c.fillStyle=p.body;
 }
+function bearPal(){
+  const dt=document.documentElement.getAttribute('data-theme');
+  if(dt==='neon')return{body:'#ff6600',bodyLt:'#ff9933',dark:'#cc3300',white:'#ffff00',nose:'#39ff14',eye:'#ff073a',mouth:'#ff073a',ears:'#cc3300'};
+  return dt==='day'?{body:'#8B5E3C',bodyLt:'#A67B5B',dark:'#5C3A1E',white:'#D4B896',nose:'#2a1a0a',eye:'#1a0a00',mouth:'#c05050',ears:'#5C3A1E'}
+  :{body:'#A67B5B',bodyLt:'#C49A6C',dark:'#6B4226',white:'#E8D5B7',nose:'#3a2010',eye:'#1a0a00',mouth:'#d06060',ears:'#6B4226'};
+}
+
 function drawSign(){
   const cv=document.getElementById('dhSign');if(!cv)return;
   const c=cv.getContext('2d');const p=pupPal();
@@ -1716,6 +1724,39 @@ function drawSign(){
   px(c,23,5);px(c,23,6);px(c,23,7);px(c,23,8);px(c,23,9);px(c,24,5);px(c,24,7);px(c,24,9);px(c,25,5);px(c,25,9);
 }
 
+function drawCave(){
+  const cv=document.getElementById('dhCanvas');if(!cv)return;
+  const c=cv.getContext('2d');const p=bearPal();
+  c.clearRect(0,0,40,26);
+  // Rocky cave shape
+  c.fillStyle=p.dark;
+  c.fillRect(2,8,36,18);c.fillRect(4,6,32,2);c.fillRect(6,4,28,2);c.fillRect(10,2,20,2);c.fillRect(14,0,12,2);
+  // Cave opening
+  c.fillStyle='#0a0a0a';c.fillRect(12,10,16,16);c.fillRect(14,8,12,2);
+  // Rock texture
+  c.fillStyle=p.body;px(c,5,10,3,2);px(c,30,12,4,2);px(c,8,18,2,2);px(c,32,18,3,2);
+}
+
+function drawBearSign(){
+  const cv=document.getElementById('dhSign');if(!cv)return;
+  const c=cv.getContext('2d');const p=bearPal();
+  c.clearRect(0,0,28,22);c.fillStyle=p.dark;
+  c.fillRect(13,0,2,22); // post
+  c.fillRect(0,3,28,11); // board
+  // HAPPY in 3x5 pixel font
+  c.fillStyle=p.white;
+  // H
+  px(c,2,5);px(c,2,6);px(c,2,7);px(c,2,8);px(c,2,9);px(c,3,7);px(c,4,5);px(c,4,6);px(c,4,7);px(c,4,8);px(c,4,9);
+  // A
+  px(c,6,6);px(c,6,7);px(c,6,8);px(c,6,9);px(c,7,5);px(c,7,7);px(c,8,6);px(c,8,7);px(c,8,8);px(c,8,9);
+  // P
+  px(c,10,5);px(c,10,6);px(c,10,7);px(c,10,8);px(c,10,9);px(c,11,5);px(c,11,7);px(c,12,5);px(c,12,6);
+  // P
+  px(c,14,5);px(c,14,6);px(c,14,7);px(c,14,8);px(c,14,9);px(c,15,5);px(c,15,7);px(c,16,5);px(c,16,6);
+  // Y
+  px(c,18,5);px(c,18,6);px(c,19,7);px(c,19,8);px(c,19,9);px(c,20,5);px(c,20,6);
+}
+
 function initPuppy(){
   drawDoghouse();drawSign();
   const div=document.createElement('div');div.id='puppy';
@@ -1734,12 +1775,13 @@ function initPuppy(){
     // Emoji right above Winnie
     const rect=PUP.el.getBoundingClientRect();
     const em=document.createElement('div');em.className='puppy-reaction';
-    em.textContent=act==='pet'?'💖':'🦴';
+    em.textContent=act==='pet'?'💖':(activePet==='winnie'?'🦴':'🍯');
     em.style.left=rect.left+rect.width/2-8+'px';
     em.style.top=rect.top-16+'px';
     em.style.position='fixed';
     document.body.appendChild(em);setTimeout(()=>em.remove(),1200);
   });
+  startPetSwapTimer();
   requestAnimationFrame(puppyLoop);
 }
 
@@ -1860,6 +1902,88 @@ function drawWinnie(){
   }
 }
 
+function drawBear(){
+  const c=PUP.ctx;c.clearRect(0,0,24,24);
+  const p=bearPal();const f=Math.floor(PUP.frame)%4;
+  PUP.t+=0.015;
+  const isPlay=PUP.state==='pet'||PUP.state==='treat';
+  const bob=isPlay?0:Math.round(Math.sin(PUP.t)*0.4);
+  const headDip=isPlay?1:0;
+
+  if(PUP.state==='sleep'){
+    // Curled up sleeping bear
+    c.fillStyle=p.body;c.fillRect(5,14,14,6);// body
+    c.fillStyle=p.white;c.fillRect(8,16,7,4);// belly
+    c.fillStyle=p.body;c.fillRect(1,9,12,8);// big round head
+    c.fillStyle=p.ears;c.fillRect(1,7,4,4);c.fillRect(9,7,4,4);// round ears
+    c.fillStyle=p.white;c.fillRect(3,13,6,3);// muzzle
+    c.fillStyle=p.nose;px(c,4,13,3,2);// big nose
+    c.fillStyle=p.eye;px(c,4,11,2,1);px(c,8,11,2,1);// closed eyes
+    return;
+  }
+
+  const by=bob+headDip;
+  // ══ ROUND EARS ══
+  c.fillStyle=p.ears;
+  c.fillRect(0,0+by,4,4);c.fillRect(9,0+by,4,4);
+  c.fillStyle=p.bodyLt;px(c,1,1+by,2,2);px(c,10,1+by,2,2);// inner ear
+  // ══ BIG ROUND HEAD ══
+  c.fillStyle=p.body;
+  c.fillRect(0,2+by,13,10);c.fillRect(1,1+by,11,1);c.fillRect(1,12+by,11,1);
+  // Muzzle
+  c.fillStyle=p.white;
+  c.fillRect(2,8+by,8,4);c.fillRect(3,7+by,6,1);
+  // Nose
+  c.fillStyle=p.nose;px(c,4,8+by,4,2);
+  // Eyes
+  if(isPlay){
+    c.fillStyle='#ff5577';
+    px(c,2,4+by);px(c,4,4+by);px(c,3,5+by);
+    px(c,8,4+by);px(c,10,4+by);px(c,9,5+by);
+  } else {
+    c.fillStyle=p.eye;
+    c.fillRect(3,4+by,2,3);c.fillRect(8,4+by,2,3);
+    c.fillStyle=p.white;px(c,3,4+by);px(c,8,4+by);// shine
+  }
+  // Mouth
+  if(isPlay){
+    c.fillStyle=p.mouth;px(c,4,11+by,4,1);
+    c.fillStyle=p.mouth;c.fillRect(5,12+by,2,1);// tongue
+  } else {
+    c.fillStyle=p.nose;px(c,5,11+by,2,1);
+  }
+
+  // ══ BODY ══
+  c.fillStyle=p.body;c.fillRect(3,12+headDip,10,6);c.fillRect(2,13+headDip,12,4);
+  c.fillStyle=p.white;c.fillRect(5,14+headDip,5,4);// belly
+  c.fillStyle=p.bodyLt;c.fillRect(3,12+headDip,10,2);// lighter back
+
+  // ══ STUBBY TAIL ══
+  c.fillStyle=p.body;
+  px(c,14,13+headDip,1,2);
+
+  // ══ LEGS ══
+  const ly=17+headDip;
+  c.fillStyle=p.body;
+  if(PUP.state==='walk'){
+    const s=f;
+    c.fillRect(4,ly,2,s<2?4:3);c.fillRect(6,ly,2,s<2?3:4);
+    c.fillRect(9,ly,2,s>=2?4:3);c.fillRect(11,ly,2,s>=2?3:4);
+    c.fillStyle=p.dark;
+    px(c,4,ly+(s<2?3:2),2,1);px(c,6,ly+(s<2?2:3),2,1);
+    px(c,9,ly+(s>=2?3:2),2,1);px(c,11,ly+(s>=2?2:3),2,1);
+  } else if(isPlay){
+    c.fillRect(3,ly,2,4);c.fillRect(5,ly,2,4);
+    c.fillRect(9,ly-1,2,3);c.fillRect(11,ly-1,2,3);
+    c.fillStyle=p.dark;
+    px(c,3,ly+3,2,1);px(c,5,ly+3,2,1);px(c,9,ly+1,2,1);px(c,11,ly+1,2,1);
+  } else {
+    c.fillRect(4,ly,2,3);c.fillRect(6,ly,2,3);c.fillRect(9,ly,2,3);c.fillRect(11,ly,2,3);
+    c.fillStyle=p.dark;
+    px(c,4,ly+2,2,1);px(c,6,ly+2,2,1);px(c,9,ly+2,2,1);px(c,11,ly+2,2,1);
+  }
+}
+
 function puppyLoop(){
   const now=Date.now();
   if(PUP.state==='goHome'){
@@ -1947,7 +2071,7 @@ function puppyLoop(){
   } else if(PUP.state==='sleep'){PUP.frame+=0.01}
 
   PUP.el.style.transform=PUP.dir>0?'scaleX(-1)':'';
-  drawWinnie();
+  if(activePet==='winnie')drawWinnie();else drawBear();
   PUP.el.style.left=PUP.x+'px';PUP.el.style.top=PUP.y+'px';
   PUP.el.style.display=PUP.state==='sleep'?'none':'';
   requestAnimationFrame(puppyLoop);
@@ -1986,6 +2110,32 @@ function wakePuppy(){
   document.getElementById('dhZzz').style.display='none';
   // Position at doghouse door
   const pos=getDHPos();PUP.x=pos.x;PUP.y=pos.y;
+}
+
+let activePet='winnie'; // 'winnie' or 'bear'
+let petSwapInterval=null;
+
+function switchToPet(pet){
+  activePet=pet;
+  if(pet==='winnie'){
+    drawDoghouse();drawSign();
+  } else {
+    drawCave();drawBearSign();
+  }
+  // Update toggle button
+  const btn=document.getElementById('petToggle');
+  if(btn){btn.textContent=pet==='winnie'?'🐕':'🐻';btn.title=pet==='winnie'?'Switch to Happy Bear':'Switch to Winnie'}
+}
+
+function togglePetManual(){
+  switchToPet(activePet==='winnie'?'bear':'winnie');
+}
+
+function startPetSwapTimer(){
+  if(petSwapInterval)clearInterval(petSwapInterval);
+  petSwapInterval=setInterval(()=>{
+    switchToPet(activePet==='winnie'?'bear':'winnie');
+  },600000); // 10 minutes
 }
 
 setTimeout(initPuppy,2000);
