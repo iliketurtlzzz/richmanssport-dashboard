@@ -488,6 +488,9 @@ const MODS=[
   {id:'daily-stoic',n:'Daily Stoic',i:'🏛️',d:'Daily stoic wisdom quote',s:'Built-in',sz:'sm',on:0,cat:'Personal'},
   {id:'random-fact',n:'Random Fact',i:'💡',d:'Fun fact of the day',s:'Web',sz:'sm',on:0,cat:'Personal'},
   {id:'weight-tracker',n:'Weight Tracker',i:'⚖️',d:'Track weight over time with chart',s:'Local',sz:'md',on:0,cat:'Personal'},
+  {id:'stock-aapl',n:'Stock: AAPL',i:'📈',d:'Apple Inc. stock tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-btc-usd',n:'Crypto: BTC',i:'₿',d:'Bitcoin price tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-eth-usd',n:'Crypto: ETH',i:'₿',d:'Ethereum price tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'},
 ];
 
 const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT',short:'Richmans Sport',color:'#7eb8e0',logo:'https://richmanssport.com/cdn/shop/files/Artboard_6_copy_3.png?v=1720464043',ig:'@richmanssport',tt:'@richmanssport',web:'richmanssport.com',igGoal:25000,igCur:12847,revGoal:250000,revCur:250000,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[
@@ -1612,25 +1615,23 @@ function initPuppy(){
 }
 
 function posPup(){
-  const dash=document.getElementById('dash');if(!dash)return;
+  const dh=document.getElementById('doghouse');
   const app=document.querySelector('.app');
-  const aR=app.getBoundingClientRect();const dR=dash.getBoundingClientRect();const sY=window.scrollY;
-  const pad=8; // offset from edge
-  const left=dR.left-aR.left-pad;
-  const right=dR.left-aR.left+dR.width-48+pad;
-  const top=dR.top+sY-pad;
-  const bottom=dR.top+sY+dR.height-20+pad;
-  // Rectangle path: TL → TR → BR → BL → repeat
+  if(!dh||!app)return;
+  const aR=app.getBoundingClientRect();
+  const dhR=dh.getBoundingClientRect();
+  const sY=window.scrollY;
+  const y=dhR.bottom+sY-48; // level with bottom of doghouse
+  const left=0;
+  const right=aR.width-48;
+  // Horizontal path: left ↔ right at doghouse level
   PUP.path=[
-    {x:left,y:top},
-    {x:right,y:top},
-    {x:right,y:bottom},
-    {x:left,y:bottom},
+    {x:left,y:y},
+    {x:right,y:y},
   ];
-  // Start at top-left, heading to top-right
   PUP.pathIdx=0;
-  PUP.x=PUP.path[0].x;
-  PUP.y=PUP.path[0].y;
+  PUP.x=left;
+  PUP.y=y;
   PUP.targetX=PUP.path[1].x;
   PUP.targetY=PUP.path[1].y;
   PUP.pathIdx=1;
@@ -1754,26 +1755,24 @@ function puppyLoop(){
     PUP.dir=Math.sin(elapsed*0.02)>0?1:-1;
     if(elapsed>2000){
       PUP.state='walk';PUP.stateTimer=now;PUP.dir=1;
-      // Rebuild path but keep position at doghouse — walk away naturally
-      const dash=document.getElementById('dash');
-      if(dash){
-        const app=document.querySelector('.app');
-        const aR=app.getBoundingClientRect();const dR=dash.getBoundingClientRect();const sY=window.scrollY;
-        const pad=8;
-        const left=dR.left-aR.left-pad;
-        const right=dR.left-aR.left+dR.width-48+pad;
-        const top=dR.top+sY-pad;
-        const bottom=dR.top+sY+dR.height-20+pad;
-        PUP.path=[{x:left,y:top},{x:right,y:top},{x:right,y:bottom},{x:left,y:bottom}];
-        // Find nearest path corner to walk toward
-        let best=0,bestD=Infinity;
-        for(let i=0;i<PUP.path.length;i++){
-          const d=Math.abs(PUP.x-PUP.path[i].x)+Math.abs(PUP.y-PUP.path[i].y);
-          if(d<bestD){bestD=d;best=i}
-        }
-        PUP.pathIdx=best;
-        PUP.targetX=PUP.path[best].x;
-        PUP.targetY=PUP.path[best].y;
+      // Rebuild horizontal path at doghouse level, walk away naturally
+      const dh2=document.getElementById('doghouse');
+      const app2=document.querySelector('.app');
+      if(dh2&&app2){
+        const aR2=app2.getBoundingClientRect();
+        const dhR2=dh2.getBoundingClientRect();
+        const sY2=window.scrollY;
+        const y2=dhR2.bottom+sY2-48;
+        const left2=0;
+        const right2=aR2.width-48;
+        PUP.path=[{x:left2,y:y2},{x:right2,y:y2}];
+        PUP.y=y2;
+        // Walk toward whichever end is further away
+        const distLeft=Math.abs(PUP.x-left2);
+        const distRight=Math.abs(PUP.x-right2);
+        PUP.pathIdx=distRight>distLeft?1:0;
+        PUP.targetX=PUP.path[PUP.pathIdx].x;
+        PUP.targetY=y2;
       }
       const rect=PUP.el.getBoundingClientRect();
       const em=document.createElement('div');em.className='puppy-reaction';em.style.position='fixed';
@@ -1790,11 +1789,13 @@ function puppyLoop(){
     const dx=tx-PUP.x,dy=ty-PUP.y;
     const dist=Math.sqrt(dx*dx+dy*dy);
     if(dist<2){
-      // Reached corner — maybe pause, then go to next corner
+      // Reached end — maybe pause, then reverse direction
       if(Math.random()<0.3){PUP.state='sit';PUP.stateTimer=now}
       PUP.pathIdx=(PUP.pathIdx+1)%PUP.path.length;
       PUP.targetX=PUP.path[PUP.pathIdx].x;
       PUP.targetY=PUP.path[PUP.pathIdx].y;
+      const ndx2=PUP.targetX-PUP.x;
+      if(Math.abs(ndx2)>1)PUP.dir=ndx2>0?1:-1;
     } else {
       // Walk toward target
       const speed=PUP.walkSpeed;
@@ -1811,6 +1812,8 @@ function puppyLoop(){
       PUP.pathIdx=(PUP.pathIdx+1)%PUP.path.length;
       PUP.targetX=PUP.path[PUP.pathIdx].x;
       PUP.targetY=PUP.path[PUP.pathIdx].y;
+      const ndx=PUP.targetX-PUP.x;
+      if(Math.abs(ndx)>1)PUP.dir=ndx>0?1:-1;
     }
   } else if(PUP.state==='sleep'){PUP.frame+=0.01}
 
