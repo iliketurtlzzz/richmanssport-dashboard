@@ -114,7 +114,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 /* Dashboard Grid */
 .dash{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-flow:dense;gap:14px;margin-bottom:24px}
 /* Module */
-.mod{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:16px 18px;position:relative;box-shadow:var(--shadow3d);transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s,border-color .2s,opacity .2s}
+.mod{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--radius);padding:16px 18px;position:relative;box-shadow:var(--shadow3d);transition:transform .2s cubic-bezier(.2,0,0,1),box-shadow .2s,border-color .2s,opacity .2s;max-height:500px;overflow-y:auto}
 .mod:hover{border-color:var(--brd2);box-shadow:var(--shadow3d),0 0 0 1px var(--brd2)}
 .mod.sm{grid-column:span 1}.mod.md{grid-column:span 2}.mod.lg{grid-column:span 3}.mod.xl{grid-column:span 4}
 .mod.dragging{position:fixed;z-index:9999;pointer-events:none;box-shadow:var(--shadowLift);border-color:var(--accent);opacity:.9;transform:scale(1.01);transition:none}
@@ -488,9 +488,12 @@ const MODS=[
   {id:'daily-stoic',n:'Daily Stoic',i:'🏛️',d:'Daily stoic wisdom quote',s:'Built-in',sz:'sm',on:0,cat:'Personal'},
   {id:'random-fact',n:'Random Fact',i:'💡',d:'Fun fact of the day',s:'Web',sz:'sm',on:0,cat:'Personal'},
   {id:'weight-tracker',n:'Weight Tracker',i:'⚖️',d:'Track weight over time with chart',s:'Local',sz:'md',on:0,cat:'Personal'},
-  {id:'stock-aapl',n:'Stock: AAPL',i:'📈',d:'Apple Inc. stock tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'},
-  {id:'stock-btc-usd',n:'Crypto: BTC',i:'₿',d:'Bitcoin price tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'},
-  {id:'stock-eth-usd',n:'Crypto: ETH',i:'₿',d:'Ethereum price tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-aapl',n:'Stock: AAPL',i:'📈',d:'Apple Inc.',s:'Alpha Vantage',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-tsla',n:'Stock: TSLA',i:'📈',d:'Tesla Inc.',s:'Alpha Vantage',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-btc-usd',n:'Crypto: BTC',i:'₿',d:'Bitcoin',s:'CoinGecko',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-eth-usd',n:'Crypto: ETH',i:'₿',d:'Ethereum',s:'CoinGecko',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-xrp-usd',n:'Crypto: XRP',i:'₿',d:'Ripple',s:'CoinGecko',sz:'md',on:0,cat:'Stocks'},
+  {id:'stock-doge-usd',n:'Crypto: DOGE',i:'₿',d:'Dogecoin',s:'CoinGecko',sz:'md',on:0,cat:'Stocks'},
 ];
 
 const DFLT_PROFILES={'richmans-sport':{id:'richmans-sport',name:'RICHMANS SPORT',short:'Richmans Sport',color:'#7eb8e0',logo:'https://richmanssport.com/cdn/shop/files/Artboard_6_copy_3.png?v=1720464043',ig:'@richmanssport',tt:'@richmanssport',web:'richmanssport.com',igGoal:25000,igCur:12847,revGoal:250000,revCur:250000,igGL:'Instagram Follower Goal',revGL:'2026 Revenue Goal',theme:'night',mods:null,order:null,sizes:{},igPosts:[
@@ -1449,17 +1452,19 @@ async function loadFact(force){
 function getStocks(){return JSON.parse(localStorage.getItem('cc-stocks')||'[]')}
 function saveStocks(s){localStorage.setItem('cc-stocks',JSON.stringify(s))}
 const stockCharts={};
+const AV_KEY='RIBXT3XYLI69PC0Q';
+const CRYPTO_MAP={'BTC-USD':'bitcoin','ETH-USD':'ethereum','XRP-USD':'ripple','DOGE-USD':'dogecoin','SOL-USD':'solana','ADA-USD':'cardano','BTC':'bitcoin','ETH':'ethereum','XRP':'ripple','DOGE':'dogecoin'};
+const DAYS_MAP={'1D':1,'1W':7,'1M':30,'6M':180,'1Y':365,'5Y':1825,'ALL':'max'};
 
-function isCrypto(tk){return tk.endsWith('-USD')||['BTC','ETH','XRP','DOGE','SOL','ADA'].includes(tk)}
+function isCrypto(tk){return !!CRYPTO_MAP[tk.toUpperCase()]}
 
 function addStockModule(){
   const inp=document.getElementById('sbNewStock');if(!inp)return;
   const raw=inp.value.trim().toUpperCase();if(!raw)return;
-  const ticker=raw;
   const stocks=getStocks();
-  if(stocks.includes(ticker)){inp.value='';return}
-  stocks.push(ticker);saveStocks(stocks);
-  const modId='stock-'+ticker.toLowerCase();
+  if(stocks.includes(raw)){inp.value='';return}
+  stocks.push(raw);saveStocks(stocks);
+  const modId='stock-'+raw.toLowerCase();
   if(!actMods.includes(modId)){actMods.push(modId);modOrder.push(modId);saveP()}
   inp.value='';renderSBStocks();renderDash();toggleSB();
 }
@@ -1482,69 +1487,142 @@ function renderSBStocks(){
 
 function renderStockHTML(ticker){
   const sid=ticker.replace(/[^A-Z0-9-]/g,'');
-  return `<div id="sk-${sid}"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><div id="skPrice-${sid}" style="font:800 24px 'JetBrains Mono',mono;color:var(--t0)">--</div><div id="skChange-${sid}" style="font:600 11px 'JetBrains Mono',mono;margin-top:2px"></div></div><div id="skMeta-${sid}" style="font:400 9px 'Inter';color:var(--t3);text-align:right"></div></div><div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">${['1D','1W','1M','6M','1Y','5Y','ALL'].map(r=>`<button onclick="loadStockData('${ticker}','${r}','${sid}')" id="skBtn-${sid}-${r}" style="padding:4px 8px;border-radius:5px;border:1px solid var(--brd);background:transparent;color:var(--t2);font:600 9px 'Inter';cursor:pointer;transition:all .15s">${r}</button>`).join('')}</div><div style="height:180px"><canvas id="skChart-${sid}"></canvas></div></div>`;
+  const ranges=['1D','1W','1M','6M','1Y','5Y','ALL'];
+  return `<div id="sk-${sid}"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><div id="skPrice-${sid}" style="font:800 24px 'JetBrains Mono',mono;color:var(--t0)">Loading...</div><div id="skChange-${sid}" style="font:600 11px 'JetBrains Mono',mono;margin-top:2px"></div></div><div id="skMeta-${sid}" style="font:400 9px 'Inter';color:var(--t3);text-align:right"></div></div><div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">${ranges.map(r=>`<button onclick="loadStockData('${ticker}','${r}','${sid}')" id="skBtn-${sid}-${r}" style="padding:4px 8px;border-radius:5px;border:1px solid var(--brd);background:transparent;color:var(--t2);font:600 9px 'Inter';cursor:pointer;transition:all .15s">${r}</button>`).join('')}</div><div style="height:180px"><canvas id="skChart-${sid}"></canvas></div></div>`;
 }
 
-const RANGE_MAP={'1D':{range:'1d',interval:'5m'},'1W':{range:'5d',interval:'15m'},'1M':{range:'1mo',interval:'1d'},'6M':{range:'6mo',interval:'1d'},'1Y':{range:'1y',interval:'1wk'},'5Y':{range:'5y',interval:'1mo'},'ALL':{range:'max',interval:'1mo'}};
-
-async function loadStockData(ticker,range,sid){
-  // Update button states
+function setSkBtnActive(sid,range){
   ['1D','1W','1M','6M','1Y','5Y','ALL'].forEach(r=>{
     const btn=document.getElementById('skBtn-'+sid+'-'+r);
     if(btn){btn.style.borderColor=r===range?'var(--accent)':'var(--brd)';btn.style.color=r===range?'var(--accent)':'var(--t2)';btn.style.background=r===range?'var(--accentDim)':'transparent'}
   });
-  const cfg=RANGE_MAP[range]||RANGE_MAP['1M'];
-  const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?range='+cfg.range+'&interval='+cfg.interval;
+}
+
+function renderStockChart(sid,labels,prices,changePositive){
+  const chartEl=document.getElementById('skChart-'+sid);if(!chartEl)return;
+  if(stockCharts[sid]){stockCharts[sid].destroy();delete stockCharts[sid]}
+  const s=getComputedStyle(document.documentElement);
+  const lineColor=changePositive?s.getPropertyValue('--green').trim():s.getPropertyValue('--red').trim();
+  const ctx=chartEl.getContext('2d');
+  const grad=ctx.createLinearGradient(0,0,0,180);
+  grad.addColorStop(0,lineColor+'30');grad.addColorStop(1,'transparent');
+  stockCharts[sid]=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:prices,borderColor:lineColor,backgroundColor:grad,fill:true,tension:.2,pointRadius:0,pointHoverRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:lineColor,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,intersect:false,mode:'index',callbacks:{label:c=>'$'+c.parsed.y.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:8},maxRotation:0,maxTicksLimit:8},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>'$'+v.toLocaleString()},border:{display:false}}}}});
+}
+
+async function loadCryptoData(ticker,range,sid){
+  setSkBtnActive(sid,range);
+  const coinId=CRYPTO_MAP[ticker.toUpperCase()];if(!coinId)return;
+  const days=DAYS_MAP[range]||30;
   try{
-    const res=await fetch('https://corsproxy.io/?'+encodeURIComponent(url));
-    const d=await res.json();
-    const result=d.chart.result[0];
-    const meta=result.meta;
-    const timestamps=result.timestamp||[];
-    const closes=(result.indicators.quote[0].close||[]).map(v=>v===null?undefined:v);
-    // Price + change
-    const price=meta.regularMarketPrice;
-    const prevClose=meta.chartPreviousClose||meta.previousClose||price;
-    const change=price-prevClose;
-    const changePct=prevClose?((change/prevClose)*100):0;
+    // Get price + chart data
+    const [priceRes,chartRes]=await Promise.all([
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids='+coinId+'&vs_currencies=usd&include_24hr_change=true&include_market_cap=true'),
+      fetch('https://api.coingecko.com/api/v3/coins/'+coinId+'/market_chart?vs_currency=usd&days='+days)
+    ]);
+    const priceData=await priceRes.json();
+    const chartData=await chartRes.json();
+    const info=priceData[coinId];
+    const price=info.usd;
+    const change24h=info.usd_24h_change||0;
+    const mktCap=info.usd_market_cap;
+    // Display price
     const priceEl=document.getElementById('skPrice-'+sid);
     const changeEl=document.getElementById('skChange-'+sid);
     const metaEl=document.getElementById('skMeta-'+sid);
-    if(priceEl)priceEl.textContent=(meta.currency==='USD'?'$':'')+price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(priceEl)priceEl.textContent='$'+price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     if(changeEl){
-      const sign=change>=0?'+':'';
-      changeEl.textContent=sign+change.toFixed(2)+' ('+sign+changePct.toFixed(2)+'%)';
-      changeEl.style.color=change>=0?'var(--green)':'var(--red)';
+      const sign=change24h>=0?'+':'';
+      changeEl.textContent=sign+change24h.toFixed(2)+'% (24h)';
+      changeEl.style.color=change24h>=0?'var(--green)':'var(--red)';
     }
-    if(metaEl)metaEl.innerHTML=meta.exchangeName+'<br>'+meta.currency;
+    if(metaEl)metaEl.innerHTML=coinId.charAt(0).toUpperCase()+coinId.slice(1)+'<br>MCap: $'+(mktCap/1e9).toFixed(1)+'B';
     // Chart
-    const chartEl=document.getElementById('skChart-'+sid);if(!chartEl)return;
-    if(stockCharts[sid]){stockCharts[sid].destroy();delete stockCharts[sid]}
-    const labels=timestamps.map(t=>{
-      const d=new Date(t*1000);
+    const prices=chartData.prices||[];
+    const step=Math.max(1,Math.floor(prices.length/80));
+    const sampled=prices.filter((_,i)=>i%step===0||i===prices.length-1);
+    const labels=sampled.map(p=>{
+      const d=new Date(p[0]);
       if(range==='1D')return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-      if(range==='1W')return d.toLocaleDateString('en-US',{weekday:'short'});
+      if(range==='1W')return d.toLocaleDateString('en-US',{weekday:'short',day:'numeric'});
       if(range==='1M'||range==='6M')return(d.getMonth()+1)+'/'+d.getDate();
       return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
     });
-    const s=getComputedStyle(document.documentElement);
-    const lineColor=change>=0?s.getPropertyValue('--green').trim():s.getPropertyValue('--red').trim();
-    const ctx=chartEl.getContext('2d');
-    const grad=ctx.createLinearGradient(0,0,0,180);
-    grad.addColorStop(0,lineColor+'30');grad.addColorStop(1,'transparent');
-    stockCharts[sid]=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:closes,borderColor:lineColor,backgroundColor:grad,fill:true,tension:.2,pointRadius:0,pointHoverRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:lineColor,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,intersect:false,mode:'index',callbacks:{label:c=>(meta.currency==='USD'?'$':'')+c.parsed.y.toFixed(2)}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:8},maxRotation:0,maxTicksLimit:8},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>(meta.currency==='USD'?'$':'')+v.toLocaleString()},border:{display:false}}}}});
+    const vals=sampled.map(p=>p[1]);
+    const isUp=vals.length>1&&vals[vals.length-1]>=vals[0];
+    renderStockChart(sid,labels,vals,isUp);
   }catch(e){
-    console.log('Stock fetch error:',ticker,e);
+    console.log('Crypto fetch error:',ticker,e);
     const priceEl=document.getElementById('skPrice-'+sid);
-    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load data for '+ticker+'</span>';
+    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load '+ticker+'</span>';
   }
 }
 
+async function loadAlphaData(ticker,range,sid){
+  setSkBtnActive(sid,range);
+  try{
+    // Get quote
+    const quoteRes=await fetch('https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol='+encodeURIComponent(ticker)+'&apikey='+AV_KEY);
+    const quoteData=await quoteRes.json();
+    const q=quoteData['Global Quote'];
+    if(q){
+      const price=parseFloat(q['05. price']);
+      const change=parseFloat(q['09. change']);
+      const changePct=q['10. change percent'];
+      const priceEl=document.getElementById('skPrice-'+sid);
+      const changeEl=document.getElementById('skChange-'+sid);
+      const metaEl=document.getElementById('skMeta-'+sid);
+      if(priceEl)priceEl.textContent='$'+price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      if(changeEl){
+        const sign=change>=0?'+':'';
+        changeEl.textContent=sign+change.toFixed(2)+' ('+sign+parseFloat(changePct).toFixed(2)+'%)';
+        changeEl.style.color=change>=0?'var(--green)':'var(--red)';
+      }
+      if(metaEl)metaEl.innerHTML=ticker+'<br>'+q['07. latest trading day'];
+    }
+    // Get chart data (daily)
+    const chartRes=await fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+encodeURIComponent(ticker)+'&apikey='+AV_KEY+'&outputsize='+(range==='1M'||range==='1W'||range==='1D'?'compact':'full'));
+    const chartData=await chartRes.json();
+    const ts=chartData['Time Series (Daily)'];
+    if(!ts)return;
+    let entries=Object.entries(ts).map(([d,v])=>({date:d,close:parseFloat(v['4. close'])})).sort((a,b)=>a.date.localeCompare(b.date));
+    // Filter by range
+    const now=new Date();const cutoff=new Date();
+    if(range==='1D'||range==='1W')cutoff.setDate(now.getDate()-7);
+    else if(range==='1M')cutoff.setDate(now.getDate()-30);
+    else if(range==='6M')cutoff.setMonth(now.getMonth()-6);
+    else if(range==='1Y')cutoff.setFullYear(now.getFullYear()-1);
+    else if(range==='5Y')cutoff.setFullYear(now.getFullYear()-5);
+    if(range!=='ALL')entries=entries.filter(e=>new Date(e.date)>=cutoff);
+    const labels=entries.map(e=>{
+      const d=new Date(e.date+'T12:00');
+      if(range==='1W'||range==='1D')return d.toLocaleDateString('en-US',{weekday:'short',day:'numeric'});
+      if(range==='1M'||range==='6M')return(d.getMonth()+1)+'/'+d.getDate();
+      return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    });
+    const vals=entries.map(e=>e.close);
+    const isUp=vals.length>1&&vals[vals.length-1]>=vals[0];
+    renderStockChart(sid,labels,vals,isUp);
+  }catch(e){
+    console.log('Stock fetch error:',ticker,e);
+    const priceEl=document.getElementById('skPrice-'+sid);
+    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load '+ticker+'</span>';
+  }
+}
+
+async function loadStockData(ticker,range,sid){
+  if(isCrypto(ticker))return loadCryptoData(ticker,range,sid);
+  return loadAlphaData(ticker,range,sid);
+}
+
 function initStockModules(){
-  const stocks=getStocks();
-  stocks.forEach(tk=>{
-    const sid=tk.replace(/[^A-Z0-9-]/g,'');
-    if(document.getElementById('sk-'+sid))loadStockData(tk,'1M',sid);
+  // Find all active stock modules in DOM and load data
+  const allMods=getAllMods();
+  actMods.forEach(id=>{
+    if(id.startsWith('stock-')){
+      const tk=id.replace('stock-','').toUpperCase();
+      const sid=tk.replace(/[^A-Z0-9-]/g,'');
+      if(document.getElementById('sk-'+sid))loadStockData(tk,'1M',sid);
+    }
   });
 }
 
