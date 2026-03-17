@@ -1911,7 +1911,7 @@ function puppyLoop(){
     }
   } else if(PUP.state==='sleep'){PUP.frame+=0.01}
 
-  PUP.el.style.transform=PUP.dir<0?'scaleX(-1)':'';
+  PUP.el.style.transform=PUP.dir>0?'scaleX(-1)':'';
   drawWinnie();
   PUP.el.style.left=PUP.x+'px';PUP.el.style.top=PUP.y+'px';
   PUP.el.style.display=PUP.state==='sleep'?'none':'';
