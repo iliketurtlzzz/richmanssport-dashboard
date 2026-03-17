@@ -1549,11 +1549,19 @@ async function loadCryptoData(ticker,range,sid){
     });
     const vals=sampled.map(p=>p[1]);
     const isUp=vals.length>1&&vals[vals.length-1]>=vals[0];
+    const priceText='$'+price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    const sign2=change24h>=0?'+':'';
+    const changeText=sign2+change24h.toFixed(2)+'% (24h)';
+    const changeColor=change24h>=0?'var(--green)':'var(--red)';
+    const metaText=coinId.charAt(0).toUpperCase()+coinId.slice(1)+'<br>MCap: $'+(mktCap/1e9).toFixed(1)+'B';
+    stockCache[cacheKey(ticker,range)]={ts:Date.now(),price:true,priceText,changeText,changeColor,metaText,labels,vals,isUp};
     renderStockChart(sid,labels,vals,isUp);
   }catch(e){
     console.log('Crypto fetch error:',ticker,e);
     const priceEl=document.getElementById('skPrice-'+sid);
-    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load '+ticker+'</span>';
+    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load '+ticker+'. Retrying...</span>';
+    // Retry after 10s
+    setTimeout(()=>{delete stockCache[cacheKey(ticker,range)];loadCryptoData(ticker,range,sid)},10000);
   }
 }
 
@@ -1601,28 +1609,55 @@ async function loadAlphaData(ticker,range,sid){
     });
     const vals=entries.map(e=>e.close);
     const isUp=vals.length>1&&vals[vals.length-1]>=vals[0];
+    stockCache[cacheKey(ticker,range)]={ts:Date.now(),price:true,priceText:'$'+price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}),changeText:(change>=0?'+':'')+change.toFixed(2)+' ('+(change>=0?'+':'')+parseFloat(changePct).toFixed(2)+'%)',changeColor:change>=0?'var(--green)':'var(--red)',metaText:ticker+'<br>'+q['07. latest trading day'],labels,vals,isUp};
     renderStockChart(sid,labels,vals,isUp);
   }catch(e){
     console.log('Stock fetch error:',ticker,e);
     const priceEl=document.getElementById('skPrice-'+sid);
-    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load '+ticker+'</span>';
+    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load '+ticker+'. Rate limited — try again in a minute.</span>';
   }
 }
 
+// Cache to avoid burning API calls
+const stockCache={};
+function cacheKey(tk,range){return tk+'-'+range}
+const CACHE_TTL=300000; // 5 min
+
 async function loadStockData(ticker,range,sid){
+  const ck=cacheKey(ticker,range);
+  const cached=stockCache[ck];
+  if(cached&&Date.now()-cached.ts<CACHE_TTL){
+    // Use cached data — just re-render
+    setSkBtnActive(sid,range);
+    if(cached.price)updateStockUI(sid,cached);
+    if(cached.labels)renderStockChart(sid,cached.labels,cached.vals,cached.isUp);
+    return;
+  }
   if(isCrypto(ticker))return loadCryptoData(ticker,range,sid);
   return loadAlphaData(ticker,range,sid);
 }
 
+function updateStockUI(sid,d){
+  const priceEl=document.getElementById('skPrice-'+sid);
+  const changeEl=document.getElementById('skChange-'+sid);
+  const metaEl=document.getElementById('skMeta-'+sid);
+  if(priceEl)priceEl.textContent=d.priceText;
+  if(changeEl){changeEl.textContent=d.changeText;changeEl.style.color=d.changeColor}
+  if(metaEl)metaEl.innerHTML=d.metaText;
+}
+
 function initStockModules(){
-  // Find all active stock modules in DOM and load data
-  const allMods=getAllMods();
+  // Stagger API calls to avoid rate limits
+  const stockMods=[];
   actMods.forEach(id=>{
     if(id.startsWith('stock-')){
       const tk=id.replace('stock-','').toUpperCase();
       const sid=tk.replace(/[^A-Z0-9-]/g,'');
-      if(document.getElementById('sk-'+sid))loadStockData(tk,'1M',sid);
+      if(document.getElementById('sk-'+sid))stockMods.push({tk,sid});
     }
+  });
+  stockMods.forEach((m,i)=>{
+    setTimeout(()=>loadStockData(m.tk,'1M',m.sid),i*2000); // 2s between each
   });
 }
 
