@@ -615,8 +615,23 @@ function findSnap(cx,cy){let c=null,cd=1e9;document.querySelectorAll('.mod:not(.
 
 function oAuth(btn,n){const c=btn.closest('.conn');btn.textContent='Connecting...';btn.style.opacity='.6';setTimeout(()=>{const st=c.querySelector('.conn-st');st.className='conn-st on';st.innerHTML='<span class="dot"></span>Connected';btn.textContent='Disconnect';btn.style.opacity='1';btn.className='conn-btn';btn.style.background='rgba(248,113,113,.1)';btn.style.color='var(--red)'},1500)}
 
+function getAllMods(){
+  // Merge static MODS with dynamically tracked stocks
+  const all=[...MODS];
+  const stocks=getStocks();
+  const existing=all.map(m=>m.id);
+  stocks.forEach(tk=>{
+    const id='stock-'+tk.toLowerCase();
+    if(!existing.includes(id)){
+      all.push({id,n:(isCrypto(tk)?'Crypto: ':'Stock: ')+tk,i:isCrypto(tk)?'₿':'📈',d:tk+' price tracker',s:'Yahoo Finance',sz:'md',on:0,cat:'Stocks'});
+    }
+  });
+  return all;
+}
+
 function renderLib(){
-  let h='',lc='';MODS.forEach(m=>{if(m.cat!==lc){h+=`<div style="grid-column:1/-1;padding:8px 0 0"><span style="font:700 9px 'Inter';text-transform:uppercase;letter-spacing:2px;color:var(--t3)">${m.cat}</span></div>`;lc=m.cat}
+  const mods=getAllMods();
+  let h='',lc='';mods.forEach(m=>{if(m.cat!==lc){h+=`<div style="grid-column:1/-1;padding:8px 0 0"><span style="font:700 9px 'Inter';text-transform:uppercase;letter-spacing:2px;color:var(--t3)">${m.cat}</span></div>`;lc=m.cat}
   h+=`<div class="lib-mod ${actMods.includes(m.id)?'on':''}" onclick="togMod('${m.id}')"><div class="lib-mod-i">${m.i}</div><div class="lib-mod-n">${m.n}</div><div class="lib-mod-d">${m.d}</div><span class="lib-mod-s">${m.s}</span></div>`});
   document.getElementById('libGrid').innerHTML=h;document.getElementById('mcBadge').textContent=actMods.length;
 }
@@ -625,7 +640,8 @@ function togMod(id){const i=actMods.indexOf(id);if(i>-1){actMods.splice(i,1);mod
 function renderDash(){
   const c=document.getElementById('dash');actMods.forEach(id=>{if(!modOrder.includes(id))modOrder.push(id)});
   const ord=modOrder.filter(id=>actMods.includes(id));let h='';
-  ord.forEach(id=>{const sz=getSz(id);let r=MODS.find(m=>m.id===id);if(!r&&id.startsWith('stock-')){const tk=id.replace('stock-','').toUpperCase();r={id,n:tk,i:isCrypto(tk)?'₿':'📈',d:'',s:'',sz:'md'}}if(!r)return;
+  const allMods=getAllMods();
+  ord.forEach(id=>{const sz=getSz(id);let r=allMods.find(m=>m.id===id);if(!r&&id.startsWith('stock-')){const tk=id.replace('stock-','').toUpperCase();r={id,n:tk,i:isCrypto(tk)?'₿':'📈',d:'',s:'',sz:'md'}}if(!r)return;
     h+=`<div class="mod ${sz}" id="m-${id}"><div class="mh" data-did="${id}"><div class="mh-left"><span class="mh-icon">${r.i}</span><span class="mh-title">${r.n}</span></div><div class="mh-right"><button class="mh-btn" onclick="togSP('${id}',event)" title="Resize">⤢</button><button class="mh-btn grip" title="Drag to move">⠿</button></div><div class="sp" id="sp-${id}"><div class="sp-o ${sz==='sm'?'act':''}" onclick="setSz('${id}','sm')">Small</div><div class="sp-o ${sz==='md'?'act':''}" onclick="setSz('${id}','md')">Medium</div><div class="sp-o ${sz==='lg'?'act':''}" onclick="setSz('${id}','lg')">Large</div><div class="sp-o ${sz==='xl'?'act':''}" onclick="setSz('${id}','xl')">Full</div></div></div>${gc(id)}</div>`});
   c.innerHTML=h;
   document.querySelectorAll('.mh[data-did]').forEach(el=>initDrag(el,el.getAttribute('data-did')));
