@@ -299,6 +299,15 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
     </div>
   </div>
   <div class="sb-sec">
+    <div class="sb-lbl">Stock / Crypto Modules</div>
+    <div id="sbStockList"></div>
+    <div style="display:flex;gap:6px;padding:6px 10px">
+      <input id="sbNewStock" placeholder="Ticker (AAPL, BTC-USD)..." style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 11px 'JetBrains Mono',mono;outline:none;text-transform:uppercase" onkeydown="if(event.key==='Enter')addStockModule()">
+      <button onclick="addStockModule()" style="padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow)">Add</button>
+    </div>
+    <div style="padding:4px 10px 8px"><div style="font:400 9px 'Inter';color:var(--t3);line-height:1.4">Stocks: AAPL, MSFT, GOOGL, TSLA, AMZN, etc.<br>Crypto: BTC-USD, ETH-USD, XRP-USD, DOGE-USD</div></div>
+  </div>
+  <div class="sb-sec">
     <div class="sb-lbl">Appearance</div>
     <div class="th-row">
       <button class="th-btn act" id="thN" onclick="setTheme('night')">Night</button>
@@ -391,7 +400,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg0);color:va
 const SB_URL='https://ebuxqvlosrdpjpfceojn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVidXhxdmxvc3JkcGpwZmNlb2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI2ODIsImV4cCI6MjA4OTI2ODY4Mn0.y-nX5cCcjv9A0GdvLG0oxyap8m2BCvkM4dS3Jr2_--8';
 const SB_HDRS={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
-const SYNC_KEYS=['rs-p3','rs-cid3','cc-todos','cc-notes','cc-note-folders','cc-weight-log','cc-weight-goal'];
+const SYNC_KEYS=['rs-p3','rs-cid3','cc-todos','cc-notes','cc-note-folders','cc-weight-log','cc-weight-goal','cc-stocks'];
 let syncReady=false;
 
 async function sbGet(key){
@@ -613,7 +622,7 @@ function togMod(id){const i=actMods.indexOf(id);if(i>-1){actMods.splice(i,1);mod
 function renderDash(){
   const c=document.getElementById('dash');actMods.forEach(id=>{if(!modOrder.includes(id))modOrder.push(id)});
   const ord=modOrder.filter(id=>actMods.includes(id));let h='';
-  ord.forEach(id=>{const sz=getSz(id);const r=MODS.find(m=>m.id===id);if(!r)return;
+  ord.forEach(id=>{const sz=getSz(id);let r=MODS.find(m=>m.id===id);if(!r&&id.startsWith('stock-')){const tk=id.replace('stock-','').toUpperCase();r={id,n:tk,i:isCrypto(tk)?'₿':'📈',d:'',s:'',sz:'md'}}if(!r)return;
     h+=`<div class="mod ${sz}" id="m-${id}"><div class="mh" data-did="${id}"><div class="mh-left"><span class="mh-icon">${r.i}</span><span class="mh-title">${r.n}</span></div><div class="mh-right"><button class="mh-btn" onclick="togSP('${id}',event)" title="Resize">⤢</button><button class="mh-btn grip" title="Drag to move">⠿</button></div><div class="sp" id="sp-${id}"><div class="sp-o ${sz==='sm'?'act':''}" onclick="setSz('${id}','sm')">Small</div><div class="sp-o ${sz==='md'?'act':''}" onclick="setSz('${id}','md')">Medium</div><div class="sp-o ${sz==='lg'?'act':''}" onclick="setSz('${id}','lg')">Large</div><div class="sp-o ${sz==='xl'?'act':''}" onclick="setSz('${id}','xl')">Full</div></div></div>${gc(id)}</div>`});
   c.innerHTML=h;
   document.querySelectorAll('.mh[data-did]').forEach(el=>initDrag(el,el.getAttribute('data-did')));
@@ -647,7 +656,9 @@ function gc(id){
   case 'daily-stoic':return `<div id="stoicContent" style="padding:4px 0"></div><button onclick="newStoicQuote()" style="margin-top:10px;padding:6px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer">New Quote</button>`;
   case 'random-fact':return `<div id="factContent" style="padding:4px 0"><div style="color:var(--t3);font-size:11px;text-align:center;padding:16px 0">Loading fact...</div></div><button onclick="loadFact(true)" style="margin-top:10px;padding:6px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.5px;cursor:pointer">New Fact</button>`;
   case 'weight-tracker':return `<div id="wtGoalBar" style="background:var(--bg0);border:1px solid var(--brd);border-radius:10px;padding:12px 14px;margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font:700 9px 'Inter';text-transform:uppercase;letter-spacing:1.5px;color:var(--t3)">Goal Weight</div><div style="display:flex;align-items:center;gap:6px"><span id="wtGoalDisplay" onclick="editWeightGoal()" style="font:700 13px 'JetBrains Mono',mono;color:var(--accent);cursor:pointer" title="Click to edit">220 lbs</span><input id="wtGoalInput" type="number" step="0.1" style="display:none;width:80px;padding:4px 8px;border-radius:6px;border:1px solid var(--accent);background:var(--bg0);color:var(--t0);font:700 13px 'JetBrains Mono',mono;outline:none;text-align:right" onblur="saveWeightGoal()" onkeydown="if(event.key===&apos;Enter&apos;)this.blur()"></div></div><div style="height:8px;border-radius:4px;background:var(--bg3);overflow:hidden;margin-bottom:6px"><div id="wtGoalProgress" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s ease;width:0%"></div></div><div style="display:flex;justify-content:space-between"><div id="wtGoalRemaining" style="font:600 11px 'JetBrains Mono',mono;color:var(--t0)"></div><div id="wtGoalPct" style="font:700 11px 'JetBrains Mono',mono;color:var(--accent)"></div></div></div><div id="wtSummary" style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><div id="wtPrivate" style="transition:filter .3s"><div style="display:flex;align-items:baseline;gap:12px"><div style="font:800 28px 'JetBrains Mono',mono" id="wtCurrent">--</div><div id="wtDelta" style="font:600 12px 'JetBrains Mono',mono"></div></div></div><button onclick="toggleWeightPrivacy()" id="wtEyeBtn" style="width:28px;height:28px;border:1px solid var(--brd);border-radius:6px;background:var(--bg2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .15s" title="Hide/show weight">&#128065;</button></div><div id="wtTotal" style="font:500 10px 'Inter';color:var(--t2);margin-bottom:12px"></div><div style="display:flex;gap:6px;margin-bottom:6px"><input id="wtDate" type="date" style="padding:7px 8px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'Inter';outline:none"><input id="wtInput" type="number" step="0.1" placeholder="Weight (lbs)" style="width:110px;padding:7px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:500 12px 'JetBrains Mono',mono;outline:none"><button onclick="logWeight()" style="padding:7px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer;box-shadow:var(--btnShadow)">Log</button></div><div style="display:flex;gap:6px;margin-bottom:12px"><button onclick="showWeightBulk()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer">Bulk Import</button><button onclick="clearLastWeight()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--brd);background:var(--bg2);color:var(--t3);font:600 9px 'Inter';text-transform:uppercase;letter-spacing:.3px;cursor:pointer">Undo Last</button></div><div id="wtBulkArea" style="display:none;margin-bottom:12px"><textarea id="wtBulkInput" placeholder="Paste past data, one per line:&#10;2026-01-15 185.2&#10;2026-02-01 183.5&#10;2026-03-01 181.0" style="width:100%;min-height:80px;padding:10px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 11px 'JetBrains Mono',mono;outline:none;resize:vertical"></textarea><button onclick="importWeightBulk()" style="margin-top:6px;padding:7px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font:700 10px 'Inter';text-transform:uppercase;cursor:pointer;box-shadow:var(--btnShadow)">Import</button></div><div style="height:200px"><canvas id="wtChart"></canvas></div><div id="wtHistory" style="margin-top:10px;max-height:150px;overflow-y:auto"></div>`;
-  default:return `<div style="color:var(--t3);font-size:10px;padding:16px 0;text-align:center">Connect data source</div>`}
+  default:
+    if(id.startsWith('stock-')){const tk=id.replace('stock-','').toUpperCase();return renderStockHTML(tk)}
+    return `<div style="color:var(--t3);font-size:10px;padding:16px 0;text-align:center">Connect data source</div>`}
 }
 
 function mkIGC(){const el=document.getElementById('igC');if(!el)return;const ctx=el.getContext('2d');const s=getComputedStyle(document.documentElement);const a=s.getPropertyValue('--accent').trim();const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,a+'cc');g.addColorStop(1,a+'22');new Chart(ctx,{type:'bar',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{data:[9420,10105,10780,11350,12505,12847],backgroundColor:g,borderRadius:4,barThickness:24}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:a,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,callbacks:{label:c=>c.parsed.y.toLocaleString()+' followers'}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:9}},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>(v/1000).toFixed(1)+'k'},border:{display:false},suggestedMin:8000}}}})}
@@ -971,14 +982,14 @@ updateClock();
 
 // Init
 document.getElementById('dateD').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-loadP();renderPD();renderSBDash();renderAll();
+loadP();renderPD();renderSBDash();renderSBStocks();renderAll();
 
 // Sync from Supabase — if cloud has newer data, reload state
 syncFromCloud().then(changed=>{
   if(changed){
     P=JSON.parse(localStorage.getItem('rs-p3')||'null')||JSON.parse(JSON.stringify(DFLT_PROFILES));
     CID=localStorage.getItem('rs-cid3')||'richmans-sport';
-    loadP();renderPD();renderSBDash();renderAll();
+    loadP();renderPD();renderSBDash();renderSBStocks();renderAll();
   }
 });
 
@@ -995,6 +1006,7 @@ function postRenderMods(){
   if(document.getElementById('stoicContent'))loadStoic();
   if(document.getElementById('factContent')&&!document.getElementById('factContent').dataset.loaded)loadFact();
   if(document.getElementById('wtChart')){initWeightDate();renderWeightAll()}
+  initStockModules();
 }
 
 // ── TO-DO LIST ──
@@ -1020,17 +1032,35 @@ function toggleTodo(id){
 }
 function deleteTodo(id){saveTodos(getTodos().filter(x=>x.id!==id));renderTodos()}
 
+function editTodo(id){
+  const todos=getTodos();const t=todos.find(x=>x.id===id);if(!t)return;
+  const row=document.getElementById('todo-'+id);if(!row)return;
+  row.innerHTML=`<div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:4px 0"><input id="tedText-${id}" value="${escH(t.text)}" style="padding:6px 8px;border-radius:6px;border:1px solid var(--accent);background:var(--bg0);color:var(--t0);font:400 12px 'Inter';outline:none"><div style="display:flex;gap:6px;align-items:center"><input id="tedOwner-${id}" value="${escH(t.owner||'')}" placeholder="Owner" style="width:90px;padding:5px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 10px 'Inter';outline:none"><input id="tedDue-${id}" type="date" value="${t.due||''}" style="padding:5px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:400 10px 'Inter';outline:none"><select id="tedPri-${id}" style="padding:5px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--bg0);color:var(--t0);font:600 10px 'Inter';outline:none"><option value="high" ${t.priority==='high'?'selected':''}>High</option><option value="medium" ${t.priority==='medium'?'selected':''}>Med</option><option value="low" ${t.priority==='low'?'selected':''}>Low</option></select><button onclick="saveTodoEdit(${id})" style="padding:5px 10px;border-radius:6px;border:none;background:var(--accent);color:#000;font:700 9px 'Inter';text-transform:uppercase;cursor:pointer">Save</button><button onclick="renderTodos()" style="padding:5px 8px;border-radius:6px;border:1px solid var(--brd);background:transparent;color:var(--t3);font:600 9px 'Inter';cursor:pointer">Cancel</button></div></div>`;
+  document.getElementById('tedText-'+id).focus();
+}
+
+function saveTodoEdit(id){
+  const todos=getTodos();const t=todos.find(x=>x.id===id);if(!t)return;
+  const text=document.getElementById('tedText-'+id).value.trim();
+  if(!text)return;
+  t.text=text;
+  t.owner=document.getElementById('tedOwner-'+id).value.trim();
+  t.due=document.getElementById('tedDue-'+id).value;
+  t.priority=document.getElementById('tedPri-'+id).value;
+  saveTodos(todos);renderTodos();
+}
+
 function renderTodoItem(t,isDone){
   const pc=todoPColor(t.priority);
   const dueTxt=t.due?new Date(t.due+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
   const overdue=t.due&&!t.done&&new Date(t.due+'T23:59')<new Date();
-  return `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--brd)">
+  return `<div id="todo-${t.id}" style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--brd)">
     <button onclick="toggleTodo(${t.id})" style="width:20px;height:20px;min-width:20px;border-radius:5px;border:1.5px solid ${isDone?'var(--green)':'var(--brd)'};background:${isDone?'rgba(52,211,153,.15)':'transparent'};cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--green);font-size:12px">${isDone?'&#10003;':''}</button>
     <div style="flex:1;min-width:0">
       <div style="font:${isDone?'400':'500'} 12px 'Inter';color:${isDone?'var(--t3)':'var(--t0)'};${isDone?'text-decoration:line-through;':''}">${escH(t.text)}</div>
       <div style="display:flex;gap:8px;margin-top:2px;flex-wrap:wrap">${t.owner?`<span style="font:500 9px 'Inter';color:var(--t2)">&#128100; ${escH(t.owner)}</span>`:''}${dueTxt?`<span style="font:500 9px 'JetBrains Mono',mono;color:${overdue?'var(--red)':'var(--t3)'}">&#128197; ${dueTxt}${overdue?' (overdue)':''}</span>`:''}</div>
     </div>
-    <span style="font:700 8px 'Inter';text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:4px;background:${pc.bg};color:${pc.c};white-space:nowrap">${t.priority}</span>
+    <span style="font:700 8px 'Inter';text-transform:uppercase;letter-spacing:.3px;padding:2px 6px;border-radius:4px;background:${pc.bg};color:${pc.c};white-space:nowrap">${t.priority}</span>${!isDone?`<button onclick="editTodo(${t.id})" style="width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:11px" title="Edit">&#9998;</button>`:''}
     <button onclick="deleteTodo(${t.id})" style="width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px">&times;</button>
   </div>`;
 }
@@ -1392,6 +1422,111 @@ async function loadFact(force){
   }catch(e){
     el.innerHTML='<div style="color:var(--t3);font-size:11px;text-align:center;padding:16px 0">Could not load fact</div>';
   }
+}
+
+// ═══════════════════════════════════════
+// STOCK / CRYPTO MODULES
+// ═══════════════════════════════════════
+function getStocks(){return JSON.parse(localStorage.getItem('cc-stocks')||'[]')}
+function saveStocks(s){localStorage.setItem('cc-stocks',JSON.stringify(s))}
+const stockCharts={};
+
+function isCrypto(tk){return tk.endsWith('-USD')||['BTC','ETH','XRP','DOGE','SOL','ADA'].includes(tk)}
+
+function addStockModule(){
+  const inp=document.getElementById('sbNewStock');if(!inp)return;
+  const raw=inp.value.trim().toUpperCase();if(!raw)return;
+  const ticker=raw;
+  const stocks=getStocks();
+  if(stocks.includes(ticker)){inp.value='';return}
+  stocks.push(ticker);saveStocks(stocks);
+  const modId='stock-'+ticker.toLowerCase();
+  if(!actMods.includes(modId)){actMods.push(modId);modOrder.push(modId);saveP()}
+  inp.value='';renderSBStocks();renderDash();toggleSB();
+}
+
+function removeStockModule(ticker){
+  const stocks=getStocks().filter(s=>s!==ticker);
+  saveStocks(stocks);
+  const modId='stock-'+ticker.toLowerCase();
+  actMods=actMods.filter(m=>m!==modId);
+  modOrder=modOrder.filter(m=>m!==modId);
+  saveP();renderSBStocks();renderDash();
+}
+
+function renderSBStocks(){
+  const el=document.getElementById('sbStockList');if(!el)return;
+  const stocks=getStocks();
+  if(!stocks.length){el.innerHTML='<div style="padding:4px 10px;font:400 10px \'Inter\';color:var(--t3)">No stocks tracked yet</div>';return}
+  el.innerHTML=stocks.map(s=>`<div class="sb-lnk" style="position:relative"><div class="ic" style="font-size:9px">${isCrypto(s)?'₿':'📈'}</div>${s}<button onclick="event.stopPropagation();removeStockModule('${s}')" style="margin-left:auto;width:20px;height:20px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">&times;</button></div>`).join('');
+}
+
+function renderStockHTML(ticker){
+  const sid=ticker.replace(/[^A-Z0-9-]/g,'');
+  return `<div id="sk-${sid}"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><div id="skPrice-${sid}" style="font:800 24px 'JetBrains Mono',mono;color:var(--t0)">--</div><div id="skChange-${sid}" style="font:600 11px 'JetBrains Mono',mono;margin-top:2px"></div></div><div id="skMeta-${sid}" style="font:400 9px 'Inter';color:var(--t3);text-align:right"></div></div><div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">${['1D','1W','1M','6M','1Y','5Y','ALL'].map(r=>`<button onclick="loadStockData('${ticker}','${r}','${sid}')" id="skBtn-${sid}-${r}" style="padding:4px 8px;border-radius:5px;border:1px solid var(--brd);background:transparent;color:var(--t2);font:600 9px 'Inter';cursor:pointer;transition:all .15s">${r}</button>`).join('')}</div><div style="height:180px"><canvas id="skChart-${sid}"></canvas></div></div>`;
+}
+
+const RANGE_MAP={'1D':{range:'1d',interval:'5m'},'1W':{range:'5d',interval:'15m'},'1M':{range:'1mo',interval:'1d'},'6M':{range:'6mo',interval:'1d'},'1Y':{range:'1y',interval:'1wk'},'5Y':{range:'5y',interval:'1mo'},'ALL':{range:'max',interval:'1mo'}};
+
+async function loadStockData(ticker,range,sid){
+  // Update button states
+  ['1D','1W','1M','6M','1Y','5Y','ALL'].forEach(r=>{
+    const btn=document.getElementById('skBtn-'+sid+'-'+r);
+    if(btn){btn.style.borderColor=r===range?'var(--accent)':'var(--brd)';btn.style.color=r===range?'var(--accent)':'var(--t2)';btn.style.background=r===range?'var(--accentDim)':'transparent'}
+  });
+  const cfg=RANGE_MAP[range]||RANGE_MAP['1M'];
+  const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?range='+cfg.range+'&interval='+cfg.interval;
+  try{
+    const res=await fetch('https://corsproxy.io/?'+encodeURIComponent(url));
+    const d=await res.json();
+    const result=d.chart.result[0];
+    const meta=result.meta;
+    const timestamps=result.timestamp||[];
+    const closes=(result.indicators.quote[0].close||[]).map(v=>v===null?undefined:v);
+    // Price + change
+    const price=meta.regularMarketPrice;
+    const prevClose=meta.chartPreviousClose||meta.previousClose||price;
+    const change=price-prevClose;
+    const changePct=prevClose?((change/prevClose)*100):0;
+    const priceEl=document.getElementById('skPrice-'+sid);
+    const changeEl=document.getElementById('skChange-'+sid);
+    const metaEl=document.getElementById('skMeta-'+sid);
+    if(priceEl)priceEl.textContent=(meta.currency==='USD'?'$':'')+price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(changeEl){
+      const sign=change>=0?'+':'';
+      changeEl.textContent=sign+change.toFixed(2)+' ('+sign+changePct.toFixed(2)+'%)';
+      changeEl.style.color=change>=0?'var(--green)':'var(--red)';
+    }
+    if(metaEl)metaEl.innerHTML=meta.exchangeName+'<br>'+meta.currency;
+    // Chart
+    const chartEl=document.getElementById('skChart-'+sid);if(!chartEl)return;
+    if(stockCharts[sid]){stockCharts[sid].destroy();delete stockCharts[sid]}
+    const labels=timestamps.map(t=>{
+      const d=new Date(t*1000);
+      if(range==='1D')return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      if(range==='1W')return d.toLocaleDateString('en-US',{weekday:'short'});
+      if(range==='1M'||range==='6M')return(d.getMonth()+1)+'/'+d.getDate();
+      return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    });
+    const s=getComputedStyle(document.documentElement);
+    const lineColor=change>=0?s.getPropertyValue('--green').trim():s.getPropertyValue('--red').trim();
+    const ctx=chartEl.getContext('2d');
+    const grad=ctx.createLinearGradient(0,0,0,180);
+    grad.addColorStop(0,lineColor+'30');grad.addColorStop(1,'transparent');
+    stockCharts[sid]=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:closes,borderColor:lineColor,backgroundColor:grad,fill:true,tension:.2,pointRadius:0,pointHoverRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:s.getPropertyValue('--bg1').trim(),borderColor:s.getPropertyValue('--brd').trim(),borderWidth:1,titleColor:s.getPropertyValue('--t0').trim(),bodyColor:lineColor,bodyFont:{family:'JetBrains Mono',weight:'700'},padding:8,cornerRadius:6,displayColors:false,intersect:false,mode:'index',callbacks:{label:c=>(meta.currency==='USD'?'$':'')+c.parsed.y.toFixed(2)}}},scales:{x:{grid:{display:false},ticks:{color:s.getPropertyValue('--t3').trim(),font:{size:8},maxRotation:0,maxTicksLimit:8},border:{display:false}},y:{grid:{color:'rgba(128,128,128,.05)'},ticks:{color:s.getPropertyValue('--t3').trim(),font:{family:'JetBrains Mono',size:9},callback:v=>(meta.currency==='USD'?'$':'')+v.toLocaleString()},border:{display:false}}}}});
+  }catch(e){
+    console.log('Stock fetch error:',ticker,e);
+    const priceEl=document.getElementById('skPrice-'+sid);
+    if(priceEl)priceEl.innerHTML='<span style="font-size:11px;color:var(--t3)">Could not load data for '+ticker+'</span>';
+  }
+}
+
+function initStockModules(){
+  const stocks=getStocks();
+  stocks.forEach(tk=>{
+    const sid=tk.replace(/[^A-Z0-9-]/g,'');
+    if(document.getElementById('sk-'+sid))loadStockData(tk,'1M',sid);
+  });
 }
 
 // ═══════════════════════════════════════
